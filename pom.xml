@@ -12,11 +12,8 @@
     <!-- List of modules -->
     <modules>
         <!-- Add here the paths of all modules (e.g. <module>modules/MyModule</module>) -->
-<<<<<<< HEAD
        <!-- <module>modules/NodeColorManager</module> -->
        <module>modules/TGraphDemo</module>
-=======
->>>>>>> upstream/master
     </modules>
     
     <!-- Properties -->
