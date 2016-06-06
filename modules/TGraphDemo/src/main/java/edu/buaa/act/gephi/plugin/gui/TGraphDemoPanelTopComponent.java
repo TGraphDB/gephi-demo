@@ -1119,7 +1119,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 Slider_ShadowSize.setValue(130);
                 Slider_HeatMapScale.setMinimum(1);
                 Slider_HeatMapScale.setMaximum(1000);
-                Slider_HeatMapScale.setValue(1);
+                Slider_HeatMapScale.setValue(1000);
                 break;
             case DB_READY:
                 Button_connect.setText("Disconnect");

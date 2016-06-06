@@ -6,6 +6,7 @@ import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
+ * Shutdown database in background because sometimes it is to slow.
  * Created by song on 16-6-3.
  */
 public class DatabaseShutDownAsyncTask implements LongTask, Runnable {

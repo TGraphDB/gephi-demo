@@ -26,8 +26,8 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = Renderer.class, position = 600)
 public class HeatMapStatisticPreview implements Renderer{
     public final String TGRAPH_STATISTIC = "edge.tgraph.enable";
-//    public final String WINDOW_SIZE = "edge.tgraph.window.size";
-//    public final String START_TIME = "edge.tgraph.start.time";
+    public final String WINDOW_SIZE = "edge.tgraph.window.size";
+    public final String START_TIME = "edge.tgraph.start.time";
 
     private GraphDatabaseService db;
     private HeatMapRenderer heatMapRenderer = new HeatMapRenderer();
@@ -88,23 +88,23 @@ public class HeatMapStatisticPreview implements Renderer{
                         "Show heat map effect",
                         "Temperature of traffic in a time window",
                         PreviewProperty.CATEGORY_EDGES
-                ).setValue(false)
-//                PreviewProperty.createProperty(
-//                        this,
-//                        WINDOW_SIZE,
-//                        Integer.class,
-//                        "window size",
-//                        "specific window size (hour) of statistic",
-//                        PreviewProperty.CATEGORY_EDGES
-//                ).setValue(1),
-//                PreviewProperty.createProperty(
-//                        this,
-//                        START_TIME,
-//                        Integer.class,
-//                        "start time",
-//                        "begin timestamp(seconds) of statistic",
-//                        PreviewProperty.CATEGORY_EDGES
-//                ).setValue(1288821600) //2010-11-04 06:00
+                ).setValue(false),
+                PreviewProperty.createProperty(
+                        this,
+                        WINDOW_SIZE,
+                        Integer.class,
+                        "window size",
+                        "specific window size (hour) of statistic",
+                        PreviewProperty.CATEGORY_EDGES
+                ).setValue(3600),
+                PreviewProperty.createProperty(
+                        this,
+                        START_TIME,
+                        Integer.class,
+                        "start time",
+                        "begin timestamp(seconds) of statistic",
+                        PreviewProperty.CATEGORY_EDGES
+                ).setValue(1288821600) //2010-11-04 06:00
         };
     }
 

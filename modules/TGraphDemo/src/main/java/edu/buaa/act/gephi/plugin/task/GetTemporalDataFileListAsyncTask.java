@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
+ * get Traffic status file list
  * Created by song on 16-5-27.
  */
 public class GetTemporalDataFileListAsyncTask implements LongTask, Runnable {

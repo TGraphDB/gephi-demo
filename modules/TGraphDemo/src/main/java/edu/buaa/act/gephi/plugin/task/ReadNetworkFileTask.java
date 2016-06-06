@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Read source files(Topo.csv) to RoadChain list.
  * Created by song on 16-5-27.
  */
 public class ReadNetworkFileTask implements LongTask, Runnable {

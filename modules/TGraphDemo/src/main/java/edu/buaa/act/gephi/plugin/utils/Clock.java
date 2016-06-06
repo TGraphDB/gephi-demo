@@ -1,16 +1,21 @@
 package edu.buaa.act.gephi.plugin.utils;
 
-import org.act.neo4j.temporal.demo.utils.Helper;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Use this class to see how long each process run.
+ * Mainly used for debug.
  * Created by song on 16-6-6.
  */
 public class Clock {
     private List<Long> times = new ArrayList<Long>();
     private List<String> content = new ArrayList<String>();
+
+    /**
+     * current process finish and start a new process.
+     * @param s new process's name
+     */
     public void lap(String s){
         times.add(System.currentTimeMillis());
         content.add(s);

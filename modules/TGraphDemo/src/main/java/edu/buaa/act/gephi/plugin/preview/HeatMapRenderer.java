@@ -9,13 +9,19 @@ import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.Vector;
 import org.gephi.preview.plugin.items.NodeItem;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 /**
+ * Render HeatMap Effect. inspired by:
+ * http://www.cnblogs.com/bdqlaccp/archive/2012/09/12/2681518.html
+ * https://github.com/pa7/heatmap.js/blob/master/src/renderer/canvas2d.js
  * How to use this Class ?
  * 0. call resetSize() to clear current size info.
  * 1. call preProcess() on each item to update final image size
@@ -116,14 +122,15 @@ public class HeatMapRenderer {
 
     /**
      * convert an alpha image to heat map image.
-     *
-     * @param image
+     * @deprecated use calculateHeatColor instead.
+     * because when using LinearGradientInt, render 50000000 pixels only needs 50ms,
+     * so we do not need to break the operation. we do not need to show a progress bar.
      */
     public void calculateHeatColorForEachPixel(final BufferedImage image, final int x, final int y, LinearGradient gradient){
 //        final int alpha = new Color(image.getRGB(x, y),true).getAlpha();
-        final int alpha = (image.getRGB(x, y)>> 24) & 0xff; // faster way of pre line.
+        final int alpha = (image.getRGB(x, y)>> 24) & 0xff; // get alpha value in color int, faster way of pre line.
         image.setRGB(x, y, gradient.getValue(alpha/255f));
-//                image.setRGB(x, y, new Color(c1.getRed(), c1.getGreen(), c1.getBlue(), 128).getRGB());
+//        image.setRGB(x, y, new Color(c1.getRed(), c1.getGreen(), c1.getBlue(), 128).getRGB());
     }
 
     public void calculateHeatColor(final BufferedImage image, LinearGradientInt gradient){
@@ -171,16 +178,6 @@ public class HeatMapRenderer {
     public CanvasSize getCanvasSize(
             final Item item,
             final PreviewProperties properties) {
-//        final Item sourceItem = item.getData(SOURCE);
-//        final Item targetItem = item.getData(TARGET);
-//        final Float x1 = sourceItem.getData(NodeItem.X);
-//        final Float x2 = targetItem.getData(NodeItem.X);
-//        final Float y1 = sourceItem.getData(NodeItem.Y);
-//        final Float y2 = targetItem.getData(NodeItem.Y);
-//        final float minX = Math.min(x1, x2);
-//        final float minY = Math.min(y1, y2);
-//        final float maxX = Math.max(x1, x2);
-//        final float maxY = Math.max(y1, y2);
         return new CanvasSize(minX, minY, maxX - minX, maxY - minY);
     }
 

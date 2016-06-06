@@ -31,8 +31,9 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 /**
- * @deprecated and the code is incorrect for it does not grantee the FIFO 
+ * @deprecated and the code is incorrect because it does not grantee the FIFO
  * property of the temporal network. Use TimeDependentDijkstraOneTransactionAsyncTask instead.
+ * this code is not maintained.
  * @author song
  */
 public class TimeDependentDijkstraAsyncTask implements LongTask, Runnable{

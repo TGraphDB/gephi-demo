@@ -7,9 +7,10 @@ import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
+ * Clear all path highlighted by TimeDependentDijkstraOneTransaction.
  * Created by song on 16-6-3.
  */
 public class ClearAllPathAsyncTask implements LongTask, Runnable{
@@ -31,7 +32,7 @@ public class ClearAllPathAsyncTask implements LongTask, Runnable{
 
     @Override
     public void run() {
-        Progress.progress(p);
+        Progress.start(p);
         final Color color = new Color(0x909090);
         for(Edge edge: graph.getEdges()){
             edge.setWeight(1f);

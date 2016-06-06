@@ -7,7 +7,7 @@
 package edu.buaa.act.gephi.plugin.gui;
 
 /**
- *
+ * Status of the UI.
  * @author song
  */
 public enum PluginStatus {

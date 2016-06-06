@@ -101,11 +101,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
 
             clock.lap("cut image");
             cutByEdgeCount(image);
-//            try {
-//                ImageIO.write(image,"png",new File("/tmp/amtf" + System.currentTimeMillis()+".png"));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+
             clock.stop();
         }catch (TaskCancelException e){
 
@@ -155,11 +151,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
             Progress.progress(progress);
         }
         graphics2D.scale(scale,scale);
-//        try {
-//            ImageIO.write(image,"png",new File("/tmp/amtf"+System.currentTimeMillis()+".png"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+
         return image;
     }
 
@@ -194,6 +186,13 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
         return result[0];
     }
 
+    private void saveImageToFile(BufferedImage image){
+        try {
+            ImageIO.write(image,"png",new File("/tmp/amtf"+System.currentTimeMillis()+".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 

@@ -6,14 +6,9 @@ import org.gephi.graph.api.Graph;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.register.Register;
-import org.neo4j.tooling.GlobalGraphOperations;
 
-import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
 
 /**
  * Created by song on 16-5-12.
@@ -47,24 +42,25 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
                     if(fullStatus!=null){
 //                        System.out.println("has status.");
                         int status = (Integer) fullStatus;
-                        if(status==1){
+                        if(status==1){ // smooth
                             edge.setColor(Color.GREEN);
-                        }else if(status==2){
+                        }else if(status==2){ // slow
                             edge.setColor(Color.ORANGE);
-                        }else if(status==3){ //status==3
+                        }else if(status==3){ //jam
                             edge.setColor(Color.RED);
-                        }else{
-                            edge.setColor(new Color(0xb0b0b0));
+                        }else{ // no data. black.
+                            throw new RuntimeException("TGraph: full-status("+fullStatus+") not in [1,2,3]. This should not happen!");
                         }
 //                        float speed = ((Integer) travelTime)*1f/length;
                     }else{ // about 1/4 of edge do not contains dynamic property.
 //                        System.out.println("null status");
+                        edge.setColor(new Color(0xb0b0b0));
                     }
                 }else{
                     throw new RuntimeException("Relationship not found in TGraph!");
                 }
             }else{
-                System.out.println("no tgraph_id attribut in gephi.");
+                System.out.println("no tgraph_id attribute in gephi.");
             }
         }
         if(!updateFlag) System.out.println("no edge");
@@ -72,7 +68,7 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
 
     @Override
     public void run() {
-        Thread.currentThread().setName("TGraph.task.UpdateGraph");
+        Thread.currentThread().setName("TGraph.task.UpdateTrafficStatus");
         progress.start(124436);
         this.start(db);
         progress.finish();

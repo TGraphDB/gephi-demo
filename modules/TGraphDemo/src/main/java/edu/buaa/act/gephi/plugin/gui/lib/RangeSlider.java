@@ -8,6 +8,7 @@ package edu.buaa.act.gephi.plugin.gui.lib;
 import javax.swing.JSlider;
 
 /**
+ * https://ernienotes.wordpress.com/2010/12/27/creating-a-java-swing-range-slider/
  * An extension of JSlider to select a range of values using two thumb controls.
  * The thumb controls are used to select the lower and upper value of a range
  * with predetermined minimum and maximum values.

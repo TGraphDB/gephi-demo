@@ -9,11 +9,20 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
+ * Find disconnected sub-graph in database.
+ * this class exist because the source data we have do not have x,y axis.
+ * so only connected roads can we know(compute) its position.
  * Created by song on 16-5-12.
  */
+
 public class FindSeparateSubGraphAsyncTask extends TransactionWrapper<List<FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo>> implements LongTask, Runnable  {
     private final int totalNodes;
     private ProgressTicket progress;

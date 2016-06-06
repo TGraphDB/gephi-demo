@@ -1,12 +1,12 @@
 package edu.buaa.act.gephi.plugin.task;
 
+import edu.buaa.act.gephi.plugin.utils.Result;
 import org.act.neo4j.temporal.demo.utils.Helper;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.act.neo4j.temporal.demo.vo.Cross;
 import org.act.neo4j.temporal.demo.vo.RelType;
 import org.act.neo4j.temporal.demo.vo.RoadChain;
 import org.act.neo4j.temporal.demo.vo.TemporalStatus;
-import org.gephi.graph.api.Graph;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
@@ -16,13 +16,18 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * Build a TGraph Demo database from scratch, using Network Topological file
+ * and traffic status file.
  * Created by song on 16-5-27.
  */
 public class BuildDatabaseAsyncTask implements Runnable, LongTask {
@@ -237,25 +242,6 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                 }
             }.start(db);
             result.inc("txCount");
-        }
-    }
-    public static class Result{
-        private Map<String,Integer> map = new HashMap<String,Integer>();
-        public void inc(String key){
-            Integer i = map.get(key);
-            if(i==null){
-                map.put(key,1);
-            }else{
-                map.put(key,i+1);
-            }
-        }
-        public Integer get(String key){
-            Integer i = map.get(key);
-            if(i==null){
-                throw new RuntimeException("TGraph: not such key in result.");
-            }else{
-                return i;
-            }
         }
     }
 }

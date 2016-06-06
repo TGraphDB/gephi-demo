@@ -1,10 +1,11 @@
 package edu.buaa.act.gephi.plugin.utils;
 
-import org.gephi.appearance.plugin.RankingElementColorTransformer;
-
-import java.awt.*;
+import java.awt.Color;
 
 /**
+ * @deprecated use LinearGradientInt instead.
+ * A copy from org.gephi.appearance.plugin.RankingElementColorTransformer
+ * but return int of RGB value rather than a Color object.
  * Created by song on 16-6-4.
  */
 public class LinearGradient {

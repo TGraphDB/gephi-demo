@@ -22,8 +22,11 @@ import java.awt.Component;
 
 /**
  * Created by song on 16-5-09.
- *
- *
+ * this tool is a hack.
+ * I build it because I cannot add NodeClickEventListener/ToolEventListener in
+ * other ServiceProvider. such as TopComponent.
+ * Then when user click on nodes this tool save the clicked nodes and TopComponent
+ * can get them by LookUp this tool and call getStart/EndNode()
  */
 
 @ServiceProvider(service = Tool.class)

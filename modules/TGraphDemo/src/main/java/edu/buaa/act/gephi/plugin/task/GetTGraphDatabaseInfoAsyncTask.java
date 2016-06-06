@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Traverse the whole graph to get some properties.
  * Created by song on 16-5-12.
  */
 public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<String, Object>> implements LongTask, Runnable{
@@ -69,7 +70,7 @@ public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<Strin
         Progress.start(progress);
         Progress.switchToIndeterminate(progress);
         Progress.setDisplayName(progress, "TGraph: Connecting to database...");
-        Progress.progress(progress, "DB Path:"+dbPath);
+        Progress.progress(progress, "DB Path: "+dbPath);
         db = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(dbPath)
                 .loadPropertiesFromFile("")

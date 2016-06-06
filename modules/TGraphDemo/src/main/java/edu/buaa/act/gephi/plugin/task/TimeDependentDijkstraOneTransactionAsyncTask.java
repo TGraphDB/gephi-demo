@@ -35,7 +35,7 @@ import java.util.PriorityQueue;
  * Algorithm to find earliest-arrive path in a temporal graph satisfying FIFO property.
  * An implementation of the generalized Dijkstra algorithm. See:
  * Dreyfus, Stuart E. "An Appraisal of Some Shortest-Path Algorithms." Operations Research 17.3(1969):395-412.
- * Note: This algorithm runs in one transaction and commit nothing to database.
+ * Note: This algorithm runs in one transaction and commit NOTHING to database.
  *
  * @author song
  */

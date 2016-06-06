@@ -3,7 +3,9 @@ package edu.buaa.act.gephi.plugin.utils;
 import java.awt.*;
 
 /**
- * Created by song on 16-6-4.
+ * A Fast LinearGradient if you have finite number of colors finally.
+ * Copy from org.gephi.appearance.plugin.RankingElementColorTransformer
+ * Created by song on 16-6-6.
  */
 public class LinearGradientInt {
     private Color[] colors;
@@ -11,6 +13,10 @@ public class LinearGradientInt {
     private float[] positions;
     private int totalColorCount;
 
+    /**
+     * Calculate all colors in constructor.
+     * @param totalColorCount count of your colors finally.
+     */
     public LinearGradientInt(Color[] colors, float[] positions, int totalColorCount) {
         if (colors != null && positions != null) {
             if (colors.length != positions.length) {
@@ -54,6 +60,11 @@ public class LinearGradientInt {
         return new Color((int)((float)c1.getRed() * (1.0F - p) + (float)c2.getRed() * p), (int)((float)c1.getGreen() * (1.0F - p) + (float)c2.getGreen() * p), (int)((float)c1.getBlue() * (1.0F - p) + (float)c2.getBlue() * p), (int)((float)c1.getAlpha() * (1.0F - p) + (float)c2.getAlpha() * p)).getRGB();
     }
 
+    /**
+     * Get color value directly from the pre-computed colorArray.
+     * @param pos an int, range[0, totalColorCount-1]
+     * @return RGBA value of the color.
+     */
     public int getValue(int pos) {
         try{
             return colorArray[pos];

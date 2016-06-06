@@ -1,24 +1,28 @@
 package edu.buaa.act.gephi.plugin.utils;
 
+import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import org.gephi.preview.api.G2DTarget;
+import org.gephi.preview.api.PreviewController;
+import org.gephi.preview.api.PreviewMouseEvent;
+import org.gephi.preview.api.Vector;
+import org.openide.util.Lookup;
+
 /**
+ * @deprecated @nouse
+ * this class is copy from gephi toolkit example.
+ * I don't think it can be used in Gephi Plugin development --- but I never tried.
  * Created by song on 16-5-30.
  */
-        import java.awt.Graphics;
-        import java.awt.event.MouseEvent;
-        import java.awt.event.MouseListener;
-        import java.awt.event.MouseMotionListener;
-        import java.awt.event.MouseWheelEvent;
-        import java.awt.event.MouseWheelListener;
-        import java.util.Timer;
-        import java.util.TimerTask;
-        import java.util.concurrent.atomic.AtomicBoolean;
-        import javax.swing.JPanel;
-        import javax.swing.SwingUtilities;
-        import org.gephi.preview.api.G2DTarget;
-        import org.gephi.preview.api.PreviewController;
-        import org.gephi.preview.api.PreviewMouseEvent;
-        import org.gephi.preview.api.Vector;
-        import org.openide.util.Lookup;
 
 public class PreviewSketch extends JPanel implements MouseListener, MouseWheelListener, MouseMotionListener {
 

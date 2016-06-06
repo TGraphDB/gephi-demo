@@ -30,7 +30,7 @@ import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 
 /**
- * Top component which displays something.
+ * Top component which user can build a demo TGraph database from source.
  */
 @ConvertAsProperties(
         dtd = "-//edu.buaa.act.gephi.plugin.gui//DataBaseBuilder//EN",
