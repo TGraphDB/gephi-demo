@@ -6,39 +6,33 @@
 
 package edu.buaa.act.gephi.plugin.task;
 
-import com.google.common.collect.Lists;
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
-import java.awt.Color;
-import org.act.neo4j.temporal.demo.algo.TimeDependentDijkstraShortestPath.AlgoHookAction;
-import org.act.neo4j.temporal.demo.algo.TimeDependentDijkstraShortestPath;
+import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
+import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.gephi.graph.api.Edge;
+import org.gephi.graph.api.GraphModel;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.register.Register;
-import org.neo4j.tooling.GlobalGraphOperations;
-import org.slf4j.LoggerFactory;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
-import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
-import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.GraphModel;
-import org.neo4j.graphdb.Direction;
 
 /**
- *
+ * @deprecated and the code is incorrect for it does not grantee the FIFO 
+ * property of the temporal network. Use TimeDependentDijkstraOneTransactionAsyncTask instead.
  * @author song
  */
 public class TimeDependentDijkstraAsyncTask implements LongTask, Runnable{

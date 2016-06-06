@@ -43,14 +43,14 @@ import org.openide.util.NbBundle.Messages;
 )
 @TopComponent.Registration(mode = "Expression MODE is undefined on line 28, column 38 in Templates/NetBeansModuleDevelopment-files/templateTopComponent637.java.", openAtStartup = false)
 @ActionID(category = "Window", id = "edu.buaa.act.gephi.plugin.gui.DataBaseBuilderTopComponent")
-@ActionReference(path = "Menu/Plugin" , position = 333)
+@ActionReference(path = "Menu/Plugins" , position = 333)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_DataBaseBuilderAction",
         preferredID = "DataBaseBuilderTopComponent"
 )
 @Messages({
-    "CTL_DataBaseBuilderAction=TGraphDemoDBBuilder",
-    "CTL_DataBaseBuilderTopComponent=TGraph DataBaseBuilder",
+    "CTL_DataBaseBuilderAction=TGraph Demo DB Builder",
+    "CTL_DataBaseBuilderTopComponent=TGraph DataBase Builder",
     "HINT_DataBaseBuilderTopComponent=Build a fresh demo TGraph dataBase"
 })
 public final class DataBaseBuilderTopComponent extends TopComponent {
@@ -280,6 +280,7 @@ public final class DataBaseBuilderTopComponent extends TopComponent {
                         dbDirectory.mkdir();
                     }
                 }
+                Label_dbFolder.setText(dbDirectory.getAbsolutePath());
 //                ReadNetworkFileTask readNetTask = new ReadNetworkFileTask();
 //                new LongTaskExecutor(true).execute(readNetTask, readNetTask, "reading...", null);
             }else{

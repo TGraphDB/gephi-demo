@@ -1,29 +1,23 @@
 package edu.buaa.act.gephi.plugin.tool;
 
-import com.github.lgooddatepicker.datetimepicker.DateTimePicker;
-import edu.buaa.act.gephi.plugin.exception.FileFormatException;
-import edu.buaa.act.gephi.plugin.exception.NoOpenProjectException;
 import edu.buaa.act.gephi.plugin.gui.TGraphDemoPanelTopComponent;
-import org.act.neo4j.temporal.demo.Config;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
-import org.gephi.graph.api.*;
 import org.gephi.graph.api.Node;
-import org.gephi.tools.spi.*;
-import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.gephi.tools.spi.NodeClickEventListener;
+import org.gephi.tools.spi.Tool;
+import org.gephi.tools.spi.ToolEventListener;
+import org.gephi.tools.spi.ToolSelectionType;
+import org.gephi.tools.spi.ToolUI;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Component;
 
 
 /**

@@ -57,7 +57,7 @@ public class JavaTestSwing {
 //            graphics.fill(rectangle);
 //            graphics.fill3DRect((int)x1,(int)y1,width/8,height/8,true);
 
-            float hx1=x1+60;
+            float hx1=x1+100;
             float hy1=y1+40;
             float hx2=x2-30;
             float hy2=y2;
@@ -70,9 +70,11 @@ public class JavaTestSwing {
 //            drawPoint(g0, hx1,hy1, "h1");
 //            drawPoint(g0, hx2,hy2, "h2");
 
-            float value=20;
+            float value=40;
 //            g0.drawString("h1",hx1,hy1);
-            GradientPaint gPaint = new GradientPaint(hx1, (hy1+hy2)/2, new Color(0,0,0,20), hx1, (hy1+hy2)/2+value, new Color(0,0,0,0),true);
+            GradientPaint gPaint = new GradientPaint(
+                    hx1, (hy1+hy2)/2, new Color(0,0,0,20),
+                    hx1, (hy1+hy2)/2+value, new Color(0,0,0,0), true);
             g0.setPaint(gPaint);
             double w = width/2;
             double h = height/2;

@@ -7,9 +7,9 @@
 package edu.buaa.act.gephi.plugin.task;
 
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
-import edu.buaa.act.gephi.plugin.utils.Result;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
+import org.act.neo4j.temporal.demo.utils.Helper;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphModel;
@@ -21,14 +21,22 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
+ * Algorithm to find earliest-arrive path in a temporal graph satisfying FIFO property.
+ * An implementation of the generalized Dijkstra algorithm. See:
+ * Dreyfus, Stuart E. "An Appraisal of Some Shortest-Path Algorithms." Operations Research 17.3(1969):395-412.
+ * Note: This algorithm runs in one transaction and commit nothing to database.
  *
- * run time dependent dijkstra shortest path finding algorithm in one transaction.
- * and no commit to database
  * @author song
  */
 public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWrapper<Object> implements LongTask, Runnable{
@@ -44,6 +52,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     private Map<Long,org.gephi.graph.api.Node> tgraphNode2GephiNode = new HashMap<Long,org.gephi.graph.api.Node>();
     private List<Long> path;
     private List<Integer> timeList;
+    private int pathRealLength = 0;
     private long searchCount=0;
 
 
@@ -65,20 +74,19 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     @Override
     public void run() {
         Thread.currentThread().setName("TGraph.T.D.PathFinding.OneTransaction");
-
-            Progress.start(progress, Integer.MAX_VALUE);
-            this.start(db);
-            Progress.finish(progress);
-            new GUIHook<Object>() {
-                @Override
-                public void guiHandler(Object value) {
-                    onResult(searchCount, path, timeList);
-                }
-            }.guiHandler(null);
+        Progress.start(progress, Integer.MAX_VALUE);
+        this.start(db);
+        Progress.finish(progress);
+        new GUIHook<Object>() {
+            @Override
+            public void guiHandler(Object value) {
+                onResult(searchCount, path, timeList, pathRealLength);
+            }
+        }.guiHandler(null);
 
     }
 
-    public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes){
+    public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
 
     }
 
@@ -95,7 +103,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
 
             long node;
             while ((node = findSmallestClosedNode()) != end && shouldGo) {
-                System.out.println("search" + node);
+//                System.out.println("search " + node);
                 loopAllNeighborsUpdateGValue(node);
                 searchCount++;
                 Progress.progress(progress, searchCount + " nodes searched");
@@ -106,7 +114,8 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
             System.out.println("get path done");
             timeList = getArriveTime(path);
             System.out.println("get time done");
-            System.out.println("Path found~ length:" + path.size() + " time:" + (timeList.get(timeList.size() - 1) - timeList.get(0)) + " minutes");
+            System.out.println("Path found~ length:" + path.size() + " time:" + timePeriod2Str(timeList.get(timeList.size() - 1) - timeList.get(0)));
+
         }catch(RuntimeException e){
             e.printStackTrace();
         }catch (Exception e){
@@ -161,25 +170,31 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
                 edge = model.getGraph().getEdge(n1, n2);
                 if(edge!=null){
                     edge.setColor(pathColor);
+                    edge.setWeight(2f);
+                    pathRealLength += (Integer) edge.getAttribute("road_length");
                     System.out.println("edge has direct.");
                 }else{
                     System.out.println("no edge between nodes! "+parent+"--"+child);
                 }
             }else{
                 edge.setColor(pathColor);
-                edge.setWeight(1.001f);
+                edge.setWeight(2f);
+                pathRealLength += (Integer) edge.getAttribute("road_length");
             }
             child = parent;
         }
         rPath.add(start);
         tgraphNode2GephiNode.get(end).setSize(3f);
+        tgraphNode2GephiNode.get(end).setColor(Color.GREEN);
         // connect last path: start->first child.
         org.gephi.graph.api.Node begin = tgraphNode2GephiNode.get(start);
         org.gephi.graph.api.Node end = tgraphNode2GephiNode.get(child);
         Edge edge = model.getGraph().getEdge(begin, end);
         edge.setColor(pathColor);
-        edge.setWeight(1.001f);
+        edge.setWeight(2f);
+        pathRealLength += (Integer) edge.getAttribute("road_length");
         begin.setSize(3f);
+        begin.setColor(Color.RED);
         //reverse array
         final List<Long> path = new ArrayList<Long>();
         for(int i=rPath.size()-1;i>=0;i--){
@@ -190,17 +205,40 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
 
     private List<Integer> getArriveTime(final List<Long> path){
         final List<Integer> timeList = new ArrayList<Integer>();
-        for (long nodeId : path) {
+        for (int i=0;i<path.size();i++){
+            long nodeId = path.get(i);
             if(!shouldGo) break;
             int arriveTime = getGvalue(nodeId);
             timeList.add(arriveTime);
             org.gephi.graph.api.Node node = tgraphNode2GephiNode.get(nodeId);
-            String label = "Arrive At["+timestamp2String(arriveTime)+"]";
+            String label;
+            if(i==0) { //start node
+                label = "Start At " + Helper.timeStamp2String(arriveTime);
+            }else if(i==(path.size()-1)){ //end node
+                label = "Arrive At " + Helper.timeStamp2String(arriveTime) + ", "+timePeriod2Str(arriveTime-timeList.get(0));
+            }else{ // node in between
+                label = Helper.timeStamp2String(arriveTime).substring(11);
+            }
             node.setLabel(label);
             System.out.println(label);
             Progress.progress(progress,nodeId+" "+label);
         }
         return timeList;
+    }
+
+    public String timePeriod2Str(int timePeriodSecond) {
+        int t = timePeriodSecond;
+        if(t<60){
+            return t+" seconds";
+        }else if(t<600){
+            return t/60 +" minute "+ t%60+" seconds";
+        }else if(t<3600){
+            return t/60 +" minute";
+        }else if((t % 3600)/60> 10){
+            return t/3600+" hours "+(t%3600)/60+" minute";
+        }else{
+            return t/3600+" hours";
+        }
     }
 
     private String timestamp2String(final int timestamp){
@@ -236,7 +274,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     /**
      * loop through all neighbors of a given node,
      * and for each neighbor node:
-     * 1. update its G value
+     * 1. update its G value( earliest arrive time )
      * 2. set parent to source node
      * 3. mark node status to CLOSE
      * after the loop above, mark given node status to FINISH
@@ -248,23 +286,13 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         for(Relationship r : node.getRelationships(Direction.OUTGOING)){
             if(!shouldGo) return;
             Node neighbor = r.getOtherNode(node);
-            System.out.println("good");
-            System.out.println(r+" "+g);
+//            System.out.println("good");
+//            System.out.println(r+" "+g);
 //            System.out.println(r.getDynPropertyPointValue("travel-time", g));
-            Object travelTimeObj = null;
-            try {
-                travelTimeObj = r.getDynPropertyPointValue("travel-time", g);
-            }catch (Throwable t){
-                t.printStackTrace();
-            }
-            System.out.println("not so good");
-            int travelTime;
-            if(travelTimeObj!=null) {
-                travelTime = (Integer) travelTimeObj;
-            }else{
-//                        logger.info(r.getId()+" "+g);
-                travelTime = 5;
-            }
+
+//            System.out.println("not so good");
+            int travelTime = getEarliestTravelTime(r, g);;
+
             switch (getStatus(neighbor)){
                 case OPEN:
                     setG(neighbor, travelTime + g);
@@ -284,12 +312,41 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     }
 
     /**
+     * TODO: this should be rewrite with an range query.
+     * Use 'earliest arrive time' rather than simply use 'travel-time' property at departureTime
+     * Because there exist cases that 'a delay before departureTime decrease the time of
+     * arrival'.(eg. wait until road not jammed, See Dreyfus 1969, page 29)
+     * This makes the arrive-time-function non-decreasing,
+     * thus guarantee FIFO property of this temporal network.
+     * This property is the foundational assumption to found
+     * earliest arrive time with this algorithm.
+     * @param r road.
+     * @param departureTime time start from r's start node.
+     * @return earliest arrive time to r's end node when departure from r's start node at departureTime.
+     */
+    private int getEarliestTravelTime(Relationship r, int departureTime) {
+        int minArriveTime = Integer.MAX_VALUE;
+        for(int curT = departureTime; curT<minArriveTime; curT++){
+            Object tObj = r.getDynPropertyPointValue("travel-time",curT);
+            if(tObj==null){ // no data, filled with 5.
+                return 5;
+            }else{
+                int period = (Integer) tObj;
+                if(curT+period<minArriveTime){
+                    minArriveTime = curT+ period;
+                }
+            }
+        }
+        return minArriveTime - departureTime;
+    }
+
+    /**
      * this is an O(1) implementation, because:
      * 1. node status only transfer from OPEN to CLOSE, never back.
      * 2. we use an [minimum heap(PriorityQueue in Java)] data structure.
      * BE CAREFUL! this implementation is only valid based on the assumption [1]!
-     * therefore it may only work for Dijkstra SP algorithm.
-     * RE VALID this when using algorithm other than Dijkstra SP.
+     * therefore it may only work for Dijkstra Shortest Path algorithm.
+     * RE VALID this when using algorithm other than Dijkstra.
      * @return node in set( status == CLOSE ) and has smallest G value among the set.
      */
     private long findSmallestClosedNode() {
@@ -330,7 +387,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     }
 
     private void setG(Node node, int value) {
-        node.setProperty("algo-astar-G",value);
+        node.setProperty("algo-astar-G", value);
     }
 
     private void setParent(Node node, Node parent) {
@@ -362,6 +419,13 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         }
     }
 
+    public String pathLength2Str(int len) {
+        if(len<2000){
+            return len+" m";
+        }else{
+            return String.format("%.1f km",len/1000f);
+        }
+    }
 
 
     public enum Status{

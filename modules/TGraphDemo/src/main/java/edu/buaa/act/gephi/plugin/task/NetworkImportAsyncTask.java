@@ -135,8 +135,8 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
         org.gephi.graph.api.Node start = addNode(r.getStartNode(),
                 end.x() - len * scale * Math.sin(theta * Math.PI / 180),
                 end.y() - len * scale * Math.cos(theta * Math.PI / 180));
-        start.setColor(Color.green);
-        end.setColor(Color.blue);
+//        start.setColor(Color.green);
+//        end.setColor(Color.blue);
         Edge edge = addEdge(start, end, r);
 //        edge.setColor(Color.green);
     }
@@ -149,15 +149,18 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
         org.gephi.graph.api.Node end = addNode(r.getEndNode(),
                 start.x()+len*scale*Math.sin(theta*Math.PI/180),
                 start.y()+len*scale*Math.cos(theta * Math.PI / 180));
-        start.setColor(Color.blue);
-        end.setColor(Color.green);
+//        start.setColor(Color.blue);
+//        end.setColor(Color.green);
         Edge edge = addEdge(start, end, r);
 //        edge.setColor(Color.GREEN);
     }
 
     private void drawEdge(Relationship r, org.gephi.graph.api.Node start, org.gephi.graph.api.Node end) {
         Edge edge = addEdge(start, end, r);
+//        colorEdgeIfProblem(edge, start, end);
+    }
 
+    private void colorEdgeIfProblem(Edge edge, org.gephi.graph.api.Node start, org.gephi.graph.api.Node end) {
         int angleFromDB = (Integer) edge.getAttribute("road_angle");
         int angleFromGephi = (int) ( 180*Math.atan((start.x() - end.x()) / (start.y() - end.y()))/Math.PI);
         if(angleFromGephi<0) angleFromGephi=360+angleFromGephi;
@@ -297,7 +300,7 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
             graph.addEdge(edge);
             return edge;
         }else{
-	    return graph.getEdge(gephiNode,gephiNodeNeighbor);
+            return graph.getEdge(gephiNode,gephiNodeNeighbor);
             // throw new RuntimeException("edge already exist!");
         }
     }

@@ -1,9 +1,6 @@
 package edu.buaa.act.gephi.plugin.utils;
 
-import org.apache.batik.ext.awt.g2d.DefaultGraphics2D;
-import org.gephi.preview.api.G2DTarget;
-
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 /**
@@ -11,13 +8,25 @@ import java.awt.image.BufferedImage;
  */
 public class Heatmap
 {
-    public final BufferedImage image ;
-    public final Graphics2D graphics = new DefaultGraphics2D(false);
+    private BufferedImage image=null ;
+    private final Graphics2D graphics = new BufferedImage(5000,5000,BufferedImage.TYPE_INT_ARGB).createGraphics();
 
-    public Heatmap(float width, float height)
-    {
-        image = new BufferedImage((int)width,(int)height,BufferedImage.TYPE_INT_ARGB);
+    public Heatmap() {
 
     }
 
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public Graphics2D getGraphics() {
+        return graphics;
+    }
+
+    public void setImageSize(float width, float height)
+    {
+        if(image==null) {
+            image = new BufferedImage((int) width, (int) height, BufferedImage.TYPE_INT_ARGB);
+        }
+    }
 }

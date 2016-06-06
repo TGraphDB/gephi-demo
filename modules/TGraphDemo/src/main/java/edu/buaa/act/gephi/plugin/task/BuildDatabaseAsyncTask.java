@@ -61,19 +61,20 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
     public void run() {
         Thread.currentThread().setName("TGraph.build.database");
         Progress.start(progress, roadList.size());
-        Progress.setDisplayName(progress,"building network structure...");
+        Progress.setDisplayName(progress, "building network structure...");
         for(RoadChain roadChain: roadList){
             roadChain.updateNeighbors();
             Progress.progress(progress);
         }
         Progress.switchToIndeterminate(progress);
-        Progress.setDisplayName(progress, "initializing database directory...");
+        Progress.setDisplayName(progress, "Creating new empty database...");
         db = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(dbPath)
                 .loadPropertiesFromFile("")
                 .newGraphDatabase();
         Progress.setDisplayName(progress, "importing road network into database...");
         Progress.switchToDeterminate(progress, roadList.size());
+//        Progress.
         Result result = new Result();
         importRoadNetwork(result);
         Progress.setDisplayName(progress, "importing traffic data into database...");
@@ -82,8 +83,10 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
         Progress.setDisplayName(progress, "finishing...");
         Progress.switchToDeterminate(progress, roadList.size());
         setStatisticData(result);
-        Progress.finish(progress);
+        Progress.setDisplayName(progress, "shutting down database...");
+        Progress.switchToIndeterminate(progress);
         db.shutdown();
+        Progress.finish(progress);
     }
 
     private void setStatisticData(Result result) {
@@ -126,14 +129,23 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                             if (roadChain.getInNum() > 0 || roadChain.getOutNum() > 0) {
                                 Relationship r = roadChain.getRelationship(db);
                                 if (r != null) {
-                                    r.setDynProperty("travel-time", time, temporalStatus.getTravelTime());
-                                    r.setDynProperty("full-status", time, temporalStatus.getFullStatus());
-                                    r.setDynProperty("vehicle-count", time, temporalStatus.getVehicleCount());
-                                    r.setDynProperty("segment-count", time, temporalStatus.getSegmentCount());
+                                    int dCount = dataCount[((int) r.getId())];
+                                    if(dCount==0){
+                                        r.createDynProperty("travel-time", time, 4, temporalStatus.getTravelTime());
+                                        r.createDynProperty("full-status", time, 4, temporalStatus.getFullStatus());
+                                        r.createDynProperty("vehicle-count", time, 4, temporalStatus.getVehicleCount());
+                                        r.createDynProperty("segment-count", time, 4, temporalStatus.getSegmentCount());
+                                        r.createDynProperty("temporal-point", 1, 4, time); // count from 1.
+                                    }else {
+                                        r.setDynProperty("travel-time", time, temporalStatus.getTravelTime());
+                                        r.setDynProperty("full-status", time, temporalStatus.getFullStatus());
+                                        r.setDynProperty("vehicle-count", time, temporalStatus.getVehicleCount());
+                                        r.setDynProperty("segment-count", time, temporalStatus.getSegmentCount());
+                                        r.setDynProperty("temporal-point", dCount+1, time);
+                                    }
                                     updateRoadMinMaxTime(r.getId(), time);
-                                    incRoadDataCount(r.getId());
-                                    r.setDynProperty("temporal-point", dataCount[((int) r.getId())], time);
                                     result.inc("time-point-data-count");
+                                    dataCount[((int) r.getId())]++;
                                 } else {
                                     System.out.println(roadChain);
                                 }
@@ -150,12 +162,9 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                 }
             }.start(db);
             result.inc("file-import");
-            Progress.progress(progress, result.get("time-point-data-count")+" time point data imported.("+result.get("file-import")+" files)", 1);
+            Progress.progress(progress);
+            Progress.progress(progress, result.get("time-point-data-count")+" time point data imported.("+result.get("file-import")+" files)");
         }
-    }
-
-    private void incRoadDataCount(long id) {
-        dataCount[((int) id)]++;
     }
 
     private void updateRoadMinMaxTime(long rid, int time) {
@@ -206,21 +215,21 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                                 outNode = outCross.getNode(db);
                             }
 
-                            Relationship relationship = inNode.createRelationshipTo(outNode, RelType.ROAD_TO);
-                            relationship.setProperty("uid", roadChain.getUid());
-                            relationship.setProperty("grid-id", roadChain.getGridId());
-                            relationship.setProperty("chain-id", roadChain.getChainId());
-                            relationship.setProperty("type", roadChain.getType());
-                            relationship.setProperty("length", roadChain.getLength());
-                            relationship.setProperty("angle", roadChain.getAngle());
-                            relationship.setProperty("in-count", roadChain.getInNum());
-                            relationship.setProperty("out-count", roadChain.getOutNum());
-                            relationship.setProperty("in-roads", roadChain.briefInChain());
-                            relationship.setProperty("out-roads", roadChain.briefOutChain());
-                            relationship.setProperty("data-count",0);
-                            relationship.setProperty("min-time",Integer.MAX_VALUE);
-                            relationship.setProperty("max-time",0);
-                            roadChain.setRelationship(relationship);
+                            Relationship r = inNode.createRelationshipTo(outNode, RelType.ROAD_TO);
+                            r.setProperty("uid", roadChain.getUid());
+                            r.setProperty("grid-id", roadChain.getGridId());
+                            r.setProperty("chain-id", roadChain.getChainId());
+                            r.setProperty("type", roadChain.getType());
+                            r.setProperty("length", roadChain.getLength());
+                            r.setProperty("angle", roadChain.getAngle());
+                            r.setProperty("in-count", roadChain.getInNum());
+                            r.setProperty("out-count", roadChain.getOutNum());
+                            r.setProperty("in-roads", roadChain.briefInChain());
+                            r.setProperty("out-roads", roadChain.briefOutChain());
+                            r.setProperty("data-count", 0);
+                            r.setProperty("min-time", Integer.MAX_VALUE);
+                            r.setProperty("max-time", 0);
+                            roadChain.setRelationship(r);
                             Progress.progress(progress);
                             Progress.progress(progress,result.get("normalRoadCount")+" road imported.");
                         }

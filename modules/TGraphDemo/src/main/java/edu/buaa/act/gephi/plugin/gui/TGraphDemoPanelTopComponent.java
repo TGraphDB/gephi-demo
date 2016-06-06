@@ -8,6 +8,8 @@ package edu.buaa.act.gephi.plugin.gui;
 import static edu.buaa.act.gephi.plugin.gui.PluginStatus.*;
 
 //import edu.buaa.act.gephi.plugin.preview.HeatMapStatisticPreview;
+import edu.buaa.act.gephi.plugin.exception.BackgroundTaskErrorHandler;
+import edu.buaa.act.gephi.plugin.preview.HeatMapStatisticPreview;
 import edu.buaa.act.gephi.plugin.task.*;
 import edu.buaa.act.gephi.plugin.tool.TimeDependentPathTool;
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
@@ -21,11 +23,15 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerModel;
+import org.act.neo4j.temporal.demo.utils.Helper;
 
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.Node;
@@ -68,14 +74,15 @@ import org.openide.util.NbBundle.Messages;
 })
 public final class TGraphDemoPanelTopComponent extends TopComponent {
 
-    private Component self;
     private GraphDatabaseService db;
     private String dbPath;
     private PluginStatus status=INIT;
     private int totalNodeCount = 0;
     private int totalEdgeCount = 0;
-    
-    
+    private int graphMinTime = 0;
+    private int graphMaxTime = 0;
+
+
     public TGraphDemoPanelTopComponent() {
         initComponents();
         System.out.println("TopComponent init...");
@@ -115,17 +122,30 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         ToggleButton_chooseEndNode = new javax.swing.JToggleButton();
         Label_endNode = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
-        Slider_date = new javax.swing.JSlider();
-        jLabel10 = new javax.swing.JLabel();
-        Spinner_hour = new javax.swing.JSpinner();
-        Panel_resultColor = new javax.swing.JPanel();
+        Slider_startTime = new javax.swing.JSlider();
+        Spinner_startTime = new javax.swing.JSpinner();
         Button_runControl = new javax.swing.JButton();
+        Panel_resultColor = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        Button_clearAllPath = new javax.swing.JButton();
         Tab_pathFinding1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         Spinner_time = new javax.swing.JSpinner();
         Slider_time = new javax.swing.JSlider();
         Label_refreshTaskStatus = new javax.swing.JLabel();
+        Tab_heatMap = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        Spinner_HeatMapStartTime = new javax.swing.JSpinner();
+        Slider_HeatMapStartTime = new javax.swing.JSlider();
+        Slider_winSize = new javax.swing.JSlider();
+        jLabel7 = new javax.swing.JLabel();
+        Slider_ShadowSize = new javax.swing.JSlider();
+        jLabel8 = new javax.swing.JLabel();
+        Label_winSize = new javax.swing.JLabel();
+        Label_shadowSize = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        Slider_HeatMapScale = new javax.swing.JSlider();
+        jLabel10 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         Button_connect = new javax.swing.JButton();
         Label_dbInfo = new javax.swing.JLabel();
@@ -245,29 +265,13 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jPanel4.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 12))); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel8.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel10, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel10.text")); // NOI18N
-
-        Spinner_hour.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1305422940000L), new java.util.Date(1305422820000L), new java.util.Date(1463275763123L), java.util.Calendar.HOUR));
-
-        Panel_resultColor.setBackground(new java.awt.Color(255, 0, 51));
-        Panel_resultColor.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                Panel_resultColorMouseClicked(evt);
+        Slider_startTime.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Slider_startTimeStateChanged(evt);
             }
         });
 
-        javax.swing.GroupLayout Panel_resultColorLayout = new javax.swing.GroupLayout(Panel_resultColor);
-        Panel_resultColor.setLayout(Panel_resultColorLayout);
-        Panel_resultColorLayout.setHorizontalGroup(
-            Panel_resultColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 14, Short.MAX_VALUE)
-        );
-        Panel_resultColorLayout.setVerticalGroup(
-            Panel_resultColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 14, Short.MAX_VALUE)
-        );
+        Spinner_startTime.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1305422940000L), new java.util.Date(1305422820000L), new java.util.Date(1463275763123L), java.util.Calendar.HOUR));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -275,33 +279,16 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel10))
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(Spinner_hour, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Panel_resultColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(Slider_date, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40))))
+                .addComponent(Spinner_startTime, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(Slider_startTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8)
-                    .addComponent(Slider_date, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel10)
-                        .addComponent(Spinner_hour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(Panel_resultColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(Slider_startTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7)
+                .addComponent(Spinner_startTime, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -312,20 +299,49 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             }
         });
 
+        Panel_resultColor.setBackground(new java.awt.Color(255, 0, 51));
+        Panel_resultColor.setToolTipText(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Panel_resultColor.toolTipText")); // NOI18N
+        Panel_resultColor.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Panel_resultColorMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout Panel_resultColorLayout = new javax.swing.GroupLayout(Panel_resultColor);
+        Panel_resultColor.setLayout(Panel_resultColorLayout);
+        Panel_resultColorLayout.setHorizontalGroup(
+            Panel_resultColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        Panel_resultColorLayout.setVerticalGroup(
+            Panel_resultColorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel5.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(Button_clearAllPath, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Button_clearAllPath.text_1")); // NOI18N
+        Button_clearAllPath.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Button_clearAllPathMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout Tab_pathFindingLayout = new javax.swing.GroupLayout(Tab_pathFinding);
         Tab_pathFinding.setLayout(Tab_pathFindingLayout);
         Tab_pathFindingLayout.setHorizontalGroup(
             Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Tab_pathFindingLayout.createSequentialGroup()
                 .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, Tab_pathFindingLayout.createSequentialGroup()
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(Tab_pathFindingLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(Tab_pathFindingLayout.createSequentialGroup()
+                        .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, Tab_pathFindingLayout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ComboBox_algorithms, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(Tab_pathFindingLayout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, Tab_pathFindingLayout.createSequentialGroup()
                                 .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel6))
@@ -336,12 +352,17 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                                 .addGap(35, 35, 35)
                                 .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(ToggleButton_chooseStartNode)
-                                    .addComponent(ToggleButton_chooseEndNode))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(Tab_pathFindingLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(Button_runControl)))
+                                    .addComponent(ToggleButton_chooseEndNode)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, Tab_pathFindingLayout.createSequentialGroup()
+                                .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(Tab_pathFindingLayout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(Panel_resultColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(Button_clearAllPath))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(Button_runControl)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         Tab_pathFindingLayout.setVerticalGroup(
@@ -364,10 +385,16 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                         .addComponent(ToggleButton_chooseEndNode, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(Button_runControl)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Panel_resultColor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(Tab_pathFindingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Button_clearAllPath)
+                    .addComponent(Button_runControl))
+                .addContainerGap())
         );
 
         TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_pathFinding.TabConstraints.tabTitle"), Tab_pathFinding); // NOI18N
@@ -388,13 +415,13 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Slider_time, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(Slider_time, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(Spinner_time, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(Label_refreshTaskStatus)
-                .addContainerGap(97, Short.MAX_VALUE))
+                .addGap(28, 28, 28))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -423,6 +450,127 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         );
 
         TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_pathFinding1.TabConstraints.tabTitle"), Tab_pathFinding1); // NOI18N
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jPanel6.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 1, 12))); // NOI18N
+
+        Spinner_HeatMapStartTime.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1305422940000L), new java.util.Date(1305422820000L), new java.util.Date(1463275763123L), java.util.Calendar.HOUR));
+        Spinner_HeatMapStartTime.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Spinner_HeatMapStartTimeStateChanged(evt);
+            }
+        });
+
+        Slider_HeatMapStartTime.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Slider_HeatMapStartTimeStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(Slider_HeatMapStartTime, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Spinner_HeatMapStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addComponent(Slider_HeatMapStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Spinner_HeatMapStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(13, Short.MAX_VALUE))
+        );
+
+        Slider_winSize.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Slider_winSizeStateChanged(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel7.text")); // NOI18N
+
+        Slider_ShadowSize.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Slider_ShadowSizeStateChanged(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel8.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(Label_winSize, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Label_winSize.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(Label_shadowSize, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Label_shadowSize.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel9.text")); // NOI18N
+
+        Slider_HeatMapScale.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                Slider_HeatMapScaleStateChanged(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel10, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel10.text")); // NOI18N
+
+        javax.swing.GroupLayout Tab_heatMapLayout = new javax.swing.GroupLayout(Tab_heatMap);
+        Tab_heatMap.setLayout(Tab_heatMapLayout);
+        Tab_heatMapLayout.setHorizontalGroup(
+            Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 4, Short.MAX_VALUE))
+            .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Slider_winSize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Slider_ShadowSize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                        .addGroup(Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addGap(18, 18, 18)
+                                .addComponent(Label_shadowSize))
+                            .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(Label_winSize)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(Slider_HeatMapScale, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel10)))
+                .addContainerGap())
+        );
+        Tab_heatMapLayout.setVerticalGroup(
+            Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Tab_heatMapLayout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(Label_winSize))
+                .addGap(3, 3, 3)
+                .addComponent(Slider_winSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Label_shadowSize)
+                    .addComponent(jLabel8))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Slider_ShadowSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(Tab_heatMapLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Slider_HeatMapScale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_heatMap.TabConstraints.tabTitle"), Tab_heatMap); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel1.text")); // NOI18N
 
@@ -485,39 +633,44 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             JFileChooser jFileChooser = new JFileChooser();
             jFileChooser.setFileFilter(new TGraphDatabaseFolderFilter());
             jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            File dbDir;
+            final File dbDir;
             if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 dbDir = jFileChooser.getSelectedFile();
                 if (dbDir.exists()) {
-                    db = getTGraphInstance(dbDir.getAbsolutePath());
-//                    HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
-//                    preview.setDB(db);
-                    final FindSeparateSubGraphAsyncTask subgraphTask = new FindSeparateSubGraphAsyncTask(db, totalNodeCount);
-                    subgraphTask.onFinish(new GUIHook<List<FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo>>(){
-                        public void guiHandler(List<FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo> value) {
-                            DefaultListModel model = new DefaultListModel();
-                            for(FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo info: value){
-                                model.addElement(info.getNodeCount()+" nodes. Start node id "+info.getStartNodeId());
-                            }
-                            List_subGraph.setVisibleRowCount(7);
-                            List_subGraph.setModel(model);
-                            Label_subGraphCount.setText(value.size()+" found");
-                            setUIStatus(SUBNET_FOUND);
-                        }
-                    });
-                    
-                    GetTGraphDatabaseInfoAsyncTask connectTask = new GetTGraphDatabaseInfoAsyncTask(db);
-                    connectTask.onFinish(new GUIHook<Map<String, String>>() {
+//                    db = getTGraphInstance(dbDir.getAbsolutePath());
+
+                    GetTGraphDatabaseInfoAsyncTask connectTask = new GetTGraphDatabaseInfoAsyncTask(dbDir);
+                    connectTask.onFinish(new GUIHook<Map<String, Object>>() {
                         @Override
-                        public void guiHandler(Map<String, String> value) {
+                        public void guiHandler(Map<String, Object> value) {
                             if (value != null) {
                                 Label_dbInfo.setText(
                                         "nodes:" + value.get("node-count") + " edges:" + value.get("edge-count")
                                 );
-                                totalNodeCount = Integer.parseInt(value.get("node-count"));
-                                totalEdgeCount = Integer.parseInt(value.get("edge-count"));
+                                totalNodeCount = (Integer) value.get("node-count");
+                                totalEdgeCount = (Integer) value.get("edge-count");
+                                graphMinTime =  (Integer) value.get("graph-min-time");
+                                graphMaxTime =  (Integer) value.get("graph-max-time");
+                                db = (GraphDatabaseService) value.get("db-instance");
+                                dbPath = dbDir.getAbsolutePath();
                                 setUIStatus(DB_READY);
-                                new LongTaskExecutor(true).execute(subgraphTask, subgraphTask,"Find Unconnected subgraphs...",null);
+                                final FindSeparateSubGraphAsyncTask subgraphTask = new FindSeparateSubGraphAsyncTask(db, totalNodeCount);
+                                subgraphTask.onFinish(new GUIHook<List<FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo>>(){
+                                    public void guiHandler(List<FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo> value) {
+                                        DefaultListModel model = new DefaultListModel();
+                                        for(FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo info: value){
+                                            model.addElement(info.getNodeCount()+" nodes. Start node id "+info.getStartNodeId());
+                                        }
+                                        List_subGraph.setVisibleRowCount(7);
+                                        List_subGraph.setModel(model);
+                                        Label_subGraphCount.setText(value.size()+" found");
+                                        setUIStatus(SUBNET_FOUND);
+                                    }
+                                });
+                                new LongTaskExecutor(true).execute(subgraphTask, subgraphTask, "Find Unconnected subgraphs...", null);
+
+                                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                                preview.setDB(db);
                             }
                         }
                     });
@@ -528,10 +681,21 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             }
         }else{
             if(confirm("Disconnect from TGraph?")){
-                if(db!=null) db.shutdown();
-                db=null;
-                dbPath=null;
-                setUIStatus(INIT);
+                Button_connect.setEnabled(false);
+                DatabaseShutDownAsyncTask task = new DatabaseShutDownAsyncTask(db){
+                    @Override
+                    public void onFinish(){
+                        new GUIHook<Object>(){
+                            @Override
+                            public void guiHandler(Object value) {
+                                db=null;
+                                dbPath=null;
+                                setUIStatus(INIT);
+                            }
+                        }.guiHandler(null);
+                    }
+                };
+                new LongTaskExecutor(false).execute(task,task,"Shutting Down...", BackgroundTaskErrorHandler.instance());
             }
         }
     }//GEN-LAST:event_Button_connectMouseClicked
@@ -616,7 +780,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     }
     
     private void Button_findShortestPathMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Button_findShortestPathMouseClicked
-        SpinnerModel model = Spinner_hour.getModel();
+        SpinnerModel model = Spinner_startTime.getModel();
         if(model instanceof SpinnerDateModel){
             GraphController gc = Lookup.getDefault().lookup(GraphController.class);
             long startNodeTGraphId = (Long) startNode.getAttribute("tgraph_id");
@@ -629,11 +793,18 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                     endNodeTGraphId,
                     time,
                     Panel_resultColor.getBackground()){
-                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes){
-                    String result="search "+searchNodeCount+" nodes. ";
-                    for(int i=0;i<path.size();i++){
-                        result+= (path.get(i)+"["+time2String(arriveTimes.get(i))+"]-->\n");
-                    }
+                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
+                    int arriveTime = arriveTimes.get(arriveTimes.size()-1);
+                    int startTime = arriveTimes.get(0);
+                    String result="Path found! Search "+searchNodeCount+" nodes.\n"+
+                            "Departure at: "+ Helper.timeStamp2String(startTime)+"\n"+
+                            "  Arrive  at: "+ Helper.timeStamp2String(arriveTime)+"\n"+
+                            "   Time Cost: "+ this.timePeriod2Str(arriveTime-startTime)+"\n"+
+                            "      length: "+ this.pathLength2Str(pathRealLength);
+//                    for(int i=0;i<path.size();i++){
+//                        result += (path.get(i)+"["+Helper.timeStamp2String((i))+"]-->\n");
+//                    }
+                    System.out.println(result);
                     notice(result);
                 }
             };
@@ -697,7 +868,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         int timeStamp = Slider_time.getValue();
         if (source.getValueIsAdjusting()) { // when dragging: only update time label
             Date time = new Date(timeStamp*1000L);
-            model.setValue(time);
+            trafficStatusTimeModel.setValue(time);
         }else if(status.value()>INIT.value()){// when release: start connectTask.
             Label_refreshTaskStatus.setText("updating...");
             GraphController gc = Lookup.getDefault().lookup(GraphController.class);
@@ -718,6 +889,75 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         }
     }//GEN-LAST:event_Panel_resultColorMouseClicked
 
+    private void Slider_startTimeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_startTimeStateChanged
+        JSlider source = (JSlider)evt.getSource();
+        int timeStamp = Slider_startTime.getValue();
+        if (source.getValueIsAdjusting()) { // when dragging: only update time label
+            Date time = new Date(timeStamp*1000L);
+            pathSearchStartTimeModel.setValue(time);
+        }
+    }//GEN-LAST:event_Slider_startTimeStateChanged
+
+    
+    private void Slider_HeatMapStartTimeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_HeatMapStartTimeStateChanged
+        JSlider source = (JSlider)evt.getSource();
+        int timeStamp = Slider_HeatMapStartTime.getValue();
+        if (status.value()>INIT.value()) { // not an init event.
+            if(!source.getValueIsAdjusting()){ // when release: set value to preview.
+                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                preview.setStartTime(timeStamp);
+            }
+        }
+        Date time = new Date(timeStamp*1000L);
+        heatMapStartTimeModel.setValue(time);
+    }//GEN-LAST:event_Slider_HeatMapStartTimeStateChanged
+
+    private void Slider_winSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_winSizeStateChanged
+        JSlider source = (JSlider)evt.getSource();
+        int winSize = Slider_winSize.getValue();
+        if(status.value()>INIT.value()){// not an init event.
+            if(!source.getValueIsAdjusting()){ // when release: set value to preview.
+                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                preview.setWindowSize(winSize*60);
+            }
+        }
+        Label_winSize.setText(timePeroid2Str(winSize));
+    }//GEN-LAST:event_Slider_winSizeStateChanged
+
+    private void Slider_ShadowSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_ShadowSizeStateChanged
+        JSlider source = (JSlider)evt.getSource();
+        int shadowSize = Slider_ShadowSize.getValue();
+        if(status.value()>INIT.value()){// not an init event.
+            if(!source.getValueIsAdjusting()){ // when release: set value to preview.
+                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                preview.setShadowSize(shadowSize);
+            }
+        }
+        Label_shadowSize.setText(String.format("%dm",shadowSize));
+    }//GEN-LAST:event_Slider_ShadowSizeStateChanged
+
+    private void Button_clearAllPathMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Button_clearAllPathMouseClicked
+        GraphController gc = Lookup.getDefault().lookup(GraphController.class);
+        ClearAllPathAsyncTask task = new ClearAllPathAsyncTask(gc.getGraphModel().getGraph());
+        new LongTaskExecutor(false).execute(task, task,"Clearing all Path...", BackgroundTaskErrorHandler.instance());
+    }//GEN-LAST:event_Button_clearAllPathMouseClicked
+
+    private void Slider_HeatMapScaleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_HeatMapScaleStateChanged
+        JSlider source = (JSlider)evt.getSource();
+        int scale = Slider_HeatMapScale.getValue();
+        if(status.value()>INIT.value()){// not an init event.
+            if(!source.getValueIsAdjusting()){ // when release: set value to preview.
+                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                preview.setImageScale(scale);
+            }
+        }
+    }//GEN-LAST:event_Slider_HeatMapScaleStateChanged
+
+    private void Spinner_HeatMapStartTimeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Spinner_HeatMapStartTimeStateChanged
+        SpinnerDateModel model = (SpinnerDateModel) Spinner_HeatMapStartTime.getModel();
+        Slider_HeatMapStartTime.setValue(dateTimeConvert(model.getDate()));
+    }//GEN-LAST:event_Spinner_HeatMapStartTimeStateChanged
+
     private Node startNode;
     private Node endNode;
     public void onNodeClick(Node[] nodes, String status){
@@ -730,10 +970,10 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 endNode = nodes[0];
                 Label_endNode.setText("node["+endNode.getAttribute("tgraph_id")+"]");
             }
-
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Button_clearAllPath;
     private javax.swing.JButton Button_connect;
     private javax.swing.JButton Button_findSubGraph;
     private javax.swing.JButton Button_import;
@@ -744,15 +984,23 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private javax.swing.JLabel Label_endNode;
     private javax.swing.JLabel Label_importSpeed;
     private javax.swing.JLabel Label_refreshTaskStatus;
+    private javax.swing.JLabel Label_shadowSize;
     private javax.swing.JLabel Label_startNode;
     private javax.swing.JLabel Label_subGraphCount;
+    private javax.swing.JLabel Label_winSize;
     private javax.swing.JList List_subGraph;
     private javax.swing.JPanel Panel_resultColor;
-    private javax.swing.JSlider Slider_date;
+    private javax.swing.JSlider Slider_HeatMapScale;
+    private javax.swing.JSlider Slider_HeatMapStartTime;
+    private javax.swing.JSlider Slider_ShadowSize;
     private javax.swing.JSlider Slider_importSpeed;
+    private javax.swing.JSlider Slider_startTime;
     private javax.swing.JSlider Slider_time;
-    private javax.swing.JSpinner Spinner_hour;
+    private javax.swing.JSlider Slider_winSize;
+    private javax.swing.JSpinner Spinner_HeatMapStartTime;
+    private javax.swing.JSpinner Spinner_startTime;
     private javax.swing.JSpinner Spinner_time;
+    private javax.swing.JPanel Tab_heatMap;
     private javax.swing.JPanel Tab_import;
     private javax.swing.JPanel Tab_pathFinding;
     private javax.swing.JPanel Tab_pathFinding1;
@@ -764,11 +1012,15 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     @Override
@@ -823,9 +1075,11 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         }
         return db;
     }
-    
-    
-    SpinnerDateModel model;
+
+
+    SpinnerDateModel pathSearchStartTimeModel;
+    SpinnerDateModel trafficStatusTimeModel;
+    SpinnerDateModel heatMapStartTimeModel;
     private void setUIStatus(PluginStatus status){
         this.status = status;
         System.out.println(this.status);
@@ -833,10 +1087,12 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             case INIT:
                 Label_dbInfo.setText("not connected.");
                 Button_connect.setText("Connect");
+                Button_connect.setEnabled(true);
                 Button_findSubGraph.setEnabled(false);
                 Button_import.setEnabled(false);
                 TabbedPane_content.setSelectedIndex(0);
                 TabbedPane_content.setEnabled(false);
+                setEnableAllChild(TabbedPane_content,false);
                 List_subGraph.setModel(new javax.swing.AbstractListModel() {
                     public int getSize() { return 0; }
                     public Object getElementAt(int i) { return null; }
@@ -848,45 +1104,75 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 ComboBox_algorithms.addItem("Time Dependent A*");
                 ComboBox_algorithms.addItem("Time Dependent ALT");
                 ComboBox_algorithms.addItem("Dijkstra");
-                Slider_date.setMinimum(0);
-                Slider_date.setMaximum(100);
+                Slider_startTime.setMinimum(0);
+                Slider_startTime.setMaximum(100);
                 Label_startNode.setText("");
                 Label_endNode.setText("");
                 Slider_importSpeed.setMinimum(1);
                 Slider_importSpeed.setMaximum(10);
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(2010,11-1,4,1,5);
-                Date start = calendar.getTime();
-                calendar.set(2010,11-1,4,23,55);
-                Date end = calendar.getTime();
-                model = new SpinnerDateModel(start,start,end, Calendar.MINUTE);
-                model.setCalendarField(Calendar.MINUTE);
-                Spinner_hour.setModel(model);
-                Spinner_hour.setEditor(new DateEditor(Spinner_hour, "yyyy-MM-dd HH:mm"));
-                Spinner_time.setModel(model);
-                Spinner_time.setEditor(new DateEditor(Spinner_time, "yyyy-MM-dd HH:mm"));
-                Slider_time.setMinimum((int) (start.getTime()/1000));
-                Slider_time.setMaximum((int) (end.getTime()/1000));
-                Slider_time.setValue((int) ((start.getTime()+end.getTime())/2000));
+                Button_findSubGraph.setVisible(false);
+                Slider_winSize.setMinimum(1800);
+                Slider_winSize.setMaximum(3600*24*30);
+                Slider_winSize.setValue(3600);
+                Slider_ShadowSize.setMinimum(50);
+                Slider_ShadowSize.setMaximum(2000);
+                Slider_ShadowSize.setValue(130);
+                Slider_HeatMapScale.setMinimum(1);
+                Slider_HeatMapScale.setMaximum(1000);
+                Slider_HeatMapScale.setValue(1);
                 break;
             case DB_READY:
                 Button_connect.setText("Disconnect");
                 Button_findSubGraph.setEnabled(true);
                 Button_import.setEnabled(false);
                 TabbedPane_content.setEnabled(true);
-                Tab_import.setEnabled(true);
+//                setEnableAllChild(Tab_import,true);
                 Tab_pathFinding.setEnabled(false);
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.set(2010,11-1,4,1,5);
+                Date start = new Date(((long)graphMinTime)*1000);
+//                calendar.set(2010,11-1,4,23,55);
+                Date end = new Date(((long)graphMaxTime)*1000);
+                // apply to path search start time selection.
+                pathSearchStartTimeModel = new SpinnerDateModel(start,start,end, Calendar.MINUTE);
+                pathSearchStartTimeModel.setCalendarField(Calendar.MINUTE);
+                Spinner_startTime.setModel(pathSearchStartTimeModel);
+                Spinner_startTime.setEditor(new DateEditor(Spinner_startTime, "yyyy-MM-dd HH:mm"));
+                Slider_startTime.setMinimum(graphMinTime);
+                Slider_startTime.setMaximum(graphMaxTime);
+                Slider_startTime.setValue((graphMinTime+graphMaxTime)/2);
+                // apply to traffic status time selection.
+                trafficStatusTimeModel = new SpinnerDateModel(start,start,end, Calendar.MINUTE);
+                Spinner_time.setModel(trafficStatusTimeModel);
+                Spinner_time.setEditor(new DateEditor(Spinner_time, "yyyy-MM-dd HH:mm"));
+                Slider_time.setMinimum(graphMinTime);
+                Slider_time.setMaximum(graphMaxTime);
+                Slider_time.setValue((graphMinTime+graphMaxTime)/2);
+                // apply to heat map start time selection.
+                heatMapStartTimeModel = new SpinnerDateModel(start,start,end, Calendar.MINUTE);
+                Spinner_HeatMapStartTime.setModel(heatMapStartTimeModel);
+                Spinner_HeatMapStartTime.setEditor(new DateEditor(Spinner_HeatMapStartTime, "yyyy-MM-dd HH:mm"));
+                Slider_HeatMapStartTime.setMinimum(graphMinTime);
+                Slider_HeatMapStartTime.setMaximum((graphMaxTime>graphMinTime+30)?(graphMaxTime-30):graphMaxTime);
+                Slider_HeatMapStartTime.setValue((graphMinTime+graphMaxTime)/2);
                 break;
             case SUBNET_FOUND:
+                setEnableAllChild(Tab_import,true);
                 List_subGraph.setEnabled(true);
                 Button_import.setEnabled(true);
                 break;
             case NET_IMPORTED://eg. ready for path finding.
-                TabbedPane_content.setEnabled(true);
+//                TabbedPane_content.setEnabled(true);
+                setEnableAllChild(TabbedPane_content, true);
                 ToggleButton_chooseStartNode.setSelected(false);
                 ToggleButton_chooseEndNode.setSelected(false);
                 ToggleButton_chooseStartNode.setText("choose");
                 ToggleButton_chooseEndNode.setText("choose");
+                HeatMapStatisticPreview preview = Lookup.getDefault().lookup(HeatMapStatisticPreview.class);
+                preview.setImageScale(Slider_HeatMapScale.getValue());
+                preview.setShadowSize(Slider_ShadowSize.getValue());
+                preview.setStartTime(Slider_HeatMapStartTime.getValue());
+                preview.setWindowSize(Slider_winSize.getValue());
                 break;
             case CHOOSING_START:
                 ToggleButton_chooseStartNode.setText("done");
@@ -895,6 +1181,30 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             case CHOOSING_END:
                 ToggleButton_chooseEndNode.setText("done");
                 break;
+        }
+    }
+
+    private String timePeroid2Str(int timePeriod) { // unit: second
+        if(timePeriod<24*3600){ // less than 1 day.
+            return String.format("%.1f Hours",timePeriod/3600f);
+        }else if(timePeriod<2*7*24*3600){ // less than 2 week.
+            return String.format("%d Days %d Hours",
+                    timePeriod/(24*3600),
+                    (timePeriod%(24*3600))/3600);
+        }else{ // larger than 2 week.
+            return String.format("%d Week %d Days",
+                    timePeriod/(7*24*3600),
+                    (timePeriod%(7*24*3600))/(24*3600));
+        }
+    }
+    
+    private void setEnableAllChild(JComponent component, boolean enable){
+        Component[] children = component.getComponents();
+        for(Component child: children){
+            if(child instanceof JComponent){
+                setEnableAllChild(((JComponent) child), enable);
+            }
+            child.setEnabled(enable);
         }
     }
     
