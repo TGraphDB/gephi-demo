@@ -54,7 +54,7 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
 //                        float speed = ((Integer) travelTime)*1f/length;
                     }else{ // about 1/4 of edge do not contains dynamic property.
 //                        System.out.println("null status");
-                        edge.setColor(new Color(0xb0b0b0));
+                        edge.setColor(new Color(0x303030));
                     }
                 }else{
                     throw new RuntimeException("Relationship not found in TGraph!");

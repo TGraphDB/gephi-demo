@@ -44,6 +44,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
     private ProgressTicket progress;
     volatile private boolean shouldGo=true;
     private float maxHeatValue = 0f;
+    private long dataCount=0;
 
     public RenderPreProcessSyncTask(GraphDatabaseService db, Item[] items, HeatMapRenderer renderer, int startTime, int winSize, int shadowSize, double imageScale) {
         this.db = db;
@@ -79,6 +80,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
             Progress.setDisplayName(progress, "TGraph: Rendering, getting data...");
 
             this.start(db);
+            System.out.println(dataCount+" time point data loaded.");
 
             clock.lap("pre process");
             totalProcessUnit += itemArray.length *2;
@@ -165,6 +167,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
                 byte[] statusByte = value.slice(0,4).getBytes();
                 int status = (Integer) DynPropertyValueConvertor.revers("Integer", statusByte);
 //                System.out.print(status+",");
+                dataCount++;
                 switch (status) {
                     case 2:
                         result[0]++;

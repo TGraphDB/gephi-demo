@@ -437,16 +437,16 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         javax.swing.GroupLayout Tab_pathFinding1Layout = new javax.swing.GroupLayout(Tab_pathFinding1);
         Tab_pathFinding1.setLayout(Tab_pathFinding1Layout);
         Tab_pathFinding1Layout.setHorizontalGroup(
-            Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 4, Short.MAX_VALUE))
+                Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
+                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 4, Short.MAX_VALUE))
         );
         Tab_pathFinding1Layout.setVerticalGroup(
-            Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(144, Short.MAX_VALUE))
+                Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
+                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(144, Short.MAX_VALUE))
         );
 
         TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_pathFinding1.TabConstraints.tabTitle"), Tab_pathFinding1); // NOI18N
@@ -674,6 +674,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                             }
                         }
                     });
+                    Button_connect.setEnabled(false);
                     new LongTaskExecutor(true).execute(connectTask, connectTask, "connecting...", null);
                 } else {
                     notice("dir not found!");
@@ -858,7 +859,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             int speed = (int)source.getValue();
             Label_importSpeed.setText("Speed: "+(speed/10f)+"x");
             if(netImportTask!=null){
-                netImportTask.setImportSpeed(speed/10f);
+                netImportTask.setImportSpeed(speed / 10f);
             }
         }
     }//GEN-LAST:event_Slider_importSpeedStateChanged
@@ -883,7 +884,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     }//GEN-LAST:event_Slider_timeStateChanged
 
     private void Panel_resultColorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Panel_resultColorMouseClicked
-        Color newColor = JColorChooser.showDialog(this, "Choose Color of Shortest Path",Panel_resultColor.getBackground());
+        Color newColor = JColorChooser.showDialog(this, "Choose Color of Shortest Path", Panel_resultColor.getBackground());
         if(newColor!=null){
             Panel_resultColor.setBackground(newColor);
         }
@@ -933,13 +934,13 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 preview.setShadowSize(shadowSize);
             }
         }
-        Label_shadowSize.setText(String.format("%dm",shadowSize));
+        Label_shadowSize.setText(String.format("%dm", shadowSize));
     }//GEN-LAST:event_Slider_ShadowSizeStateChanged
 
     private void Button_clearAllPathMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Button_clearAllPathMouseClicked
         GraphController gc = Lookup.getDefault().lookup(GraphController.class);
         ClearAllPathAsyncTask task = new ClearAllPathAsyncTask(gc.getGraphModel().getGraph());
-        new LongTaskExecutor(false).execute(task, task,"Clearing all Path...", BackgroundTaskErrorHandler.instance());
+        new LongTaskExecutor(false).execute(task, task, "Clearing all Path...", BackgroundTaskErrorHandler.instance());
     }//GEN-LAST:event_Button_clearAllPathMouseClicked
 
     private void Slider_HeatMapScaleStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_Slider_HeatMapScaleStateChanged
@@ -1058,11 +1059,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     }
     
     private boolean confirm(String s){
-        if(DialogDisplayer.getDefault().notify(new NotifyDescriptor.Confirmation(s,NotifyDescriptor.OK_CANCEL_OPTION)) == NotifyDescriptor.OK_OPTION){
-            return true;
-        } else {
-            return false;
-        }
+        return DialogDisplayer.getDefault().notify(new NotifyDescriptor.Confirmation(s, NotifyDescriptor.OK_CANCEL_OPTION)) == NotifyDescriptor.OK_OPTION;
     }
     
     private GraphDatabaseService getTGraphInstance(String absolutePath) {
@@ -1092,10 +1089,15 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 Button_import.setEnabled(false);
                 TabbedPane_content.setSelectedIndex(0);
                 TabbedPane_content.setEnabled(false);
-                setEnableAllChild(TabbedPane_content,false);
+                setEnableAllChild(TabbedPane_content, false);
                 List_subGraph.setModel(new javax.swing.AbstractListModel() {
-                    public int getSize() { return 0; }
-                    public Object getElementAt(int i) { return null; }
+                    public int getSize() {
+                        return 0;
+                    }
+
+                    public Object getElementAt(int i) {
+                        return null;
+                    }
                 });
                 List_subGraph.setEnabled(false);
                 Label_subGraphCount.setText("");
@@ -1112,7 +1114,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 Slider_importSpeed.setMaximum(10);
                 Button_findSubGraph.setVisible(false);
                 Slider_winSize.setMinimum(1800);
-                Slider_winSize.setMaximum(3600*24*30);
+                Slider_winSize.setMaximum(3600 * 24 * 30);
                 Slider_winSize.setValue(3600);
                 Slider_ShadowSize.setMinimum(50);
                 Slider_ShadowSize.setMaximum(2000);
@@ -1120,9 +1122,13 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 Slider_HeatMapScale.setMinimum(1);
                 Slider_HeatMapScale.setMaximum(1000);
                 Slider_HeatMapScale.setValue(1000);
+                Slider_HeatMapScale.setVisible(false);
+                jLabel10.setVisible(false);
+                jLabel9.setVisible(false);
                 break;
             case DB_READY:
                 Button_connect.setText("Disconnect");
+                Button_connect.setEnabled(true);
                 Button_findSubGraph.setEnabled(true);
                 Button_import.setEnabled(false);
                 TabbedPane_content.setEnabled(true);
