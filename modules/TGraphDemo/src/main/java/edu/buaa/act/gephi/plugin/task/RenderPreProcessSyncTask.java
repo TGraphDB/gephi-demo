@@ -73,19 +73,16 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
     public void run() {
         Thread.currentThread().setName("TGraph.preview.HeatMap");
         try {
-            int totalProcessUnit = itemArray.length;
             Clock clock = new Clock();
             clock.start("get data");
-            Progress.start(progress, totalProcessUnit);
+            Progress.start(progress, itemArray.length*3);
             Progress.setDisplayName(progress, "TGraph: Rendering, getting data...");
 
             this.start(db);
             System.out.println(dataCount+" time point data loaded.");
 
             clock.lap("pre process");
-            totalProcessUnit += itemArray.length *2;
             Progress.setDisplayName(progress, "TGraph: Rendering, pre-processing...");
-            Progress.switchToDeterminate(progress, totalProcessUnit);
 
             BufferedImage image = commonPreProcess(imageScale);
 
@@ -93,9 +90,8 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
             final int h = image.getHeight();
             System.out.println("image size :" + w + "x" + h);
             clock.lap("calc heat map");
-            totalProcessUnit += w * h;
+
             Progress.setDisplayName(progress, "TGraph: Rendering, calculation heat map...");
-            Progress.switchToDeterminate(progress, totalProcessUnit);
             Progress.switchToIndeterminate(progress);
 
             LinearGradientInt gradient = renderer.buildColorGradient();

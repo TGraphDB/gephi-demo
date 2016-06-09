@@ -1,42 +1,30 @@
-## Node Color Manager
+## TGraph Demo
 
-> Tool which can save/restore node colors to/from file.
+> A demonstration of TGraph database build on top of Gephi(as a plugin).
 
-this plugin is useful if you have to keep the same node to be the same color across diffrent graph/projects
+This Gephi plugin shows the power of TGraph database. It is a tiny traffic-query-system on a specific data set. The data set contains Beijing road network topological(about 110000 roads) and traffic data from 2010-11-01 00:00 to 2010-11-08 23:55 (about 1400 files, each contains traffic status of some or all roads at a specific time point)
 
-this plugin will export the node color to a file ( you must specify where it is ) and later you can restore the colors from that file in a diffrent graph/project
+This plugin also provide a Database-Builder to help you build a fresh TGraph database from raw data files.
 
+# System requirement
+- Gephi 0.9.1
+- Maven (if you want to build this plugin from source)
 
-# how to use
+# Plugin Installation
+## download plugin
+## build plugin from source
+Download this plugin, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi 
 
-The tool has two button and a text field. you should fill the text field with file name( or absolute path ) and press "save" button, then the colors were saved to the file you specified in the text field. The same works for "restore" button.
+# TGraph Database Installation
+### download an exist DB
+### build DB from raw data
+> 1. Build database from source requires extra 3GB memory in your computer.
+> 2. You must install this plugin to Gephi to use this feature.
 
+1. In Gephi, click `Plugins`->`TGraph Demo DB Builder` to open the database builder.
+2. Choose an
 
-# color file format
-
-a Unix style(line break with LF) pure text file, just like below:
-
-```
-Myriel:rgb:0.35686275,0.35686275,0.9607843
-Napoleon:rgb:0.35686275,0.35686275,0.9607843
-MlleBaptistine:rgb:0.9607843,0.35686275,0.35686275
-MmeMagloire:rgb:0.9607843,0.35686275,0.35686275
-CountessDeLo:rgb:0.35686275,0.35686275,0.9607843
-Geborand:rgb:0.35686275,0.35686275,0.9607843
-Champtercier:rgb:0.35686275,0.35686275,0.9607843
-Cravatte:rgb:0.35686275,0.35686275,0.9607843
-Count:rgb:0.35686275,0.35686275,0.9607843
-OldMan:rgb:0.35686275,0.35686275,0.9607843
-Labarre:rgb:0.9607843,0.35686275,0.35686275
-```
-
-which is
-
-```
-[node label]:rgb:[red value],[green value],[blue value]
-```
-
-if you want a #XXYYZZ color format, you can get `XX= Integer.toHexString(Math.round([red value]*255))` in Java
+## play with it
 
 
 # Notes
@@ -45,6 +33,8 @@ The tool identify nodes by their labels, so your graph must have unique label fo
 
 When restore from file, only the nodes which match the labels in file would be colored, others will remain their original color.
 
-# Feed back
+# Known issues
+- you can only connect to ONE TGraph database in a Gephi session. To connect to another TGraph database, you must restart Gephi.
 
+# Feed back
 please use issue.
