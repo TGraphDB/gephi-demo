@@ -31,6 +31,8 @@ import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerModel;
+
+import edu.buaa.act.gephi.plugin.utils.TGraphFileView;
 import org.act.neo4j.temporal.demo.utils.Helper;
 
 import org.gephi.graph.api.GraphController;
@@ -437,16 +439,16 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         javax.swing.GroupLayout Tab_pathFinding1Layout = new javax.swing.GroupLayout(Tab_pathFinding1);
         Tab_pathFinding1.setLayout(Tab_pathFinding1Layout);
         Tab_pathFinding1Layout.setHorizontalGroup(
-                Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
-                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 4, Short.MAX_VALUE))
+            Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 4, Short.MAX_VALUE))
         );
         Tab_pathFinding1Layout.setVerticalGroup(
-                Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
-                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(144, Short.MAX_VALUE))
+            Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(144, Short.MAX_VALUE))
         );
 
         TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_pathFinding1.TabConstraints.tabTitle"), Tab_pathFinding1); // NOI18N
@@ -631,7 +633,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private void Button_connectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Button_connectMouseClicked
         if(status==INIT){
             JFileChooser jFileChooser = new JFileChooser();
-            jFileChooser.setFileFilter(new TGraphDatabaseFolderFilter());
+            jFileChooser.setFileView(new TGraphFileView());
             jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             final File dbDir;
             if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
