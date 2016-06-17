@@ -13,7 +13,7 @@ This plugin also provide a Database-Builder to help you build a fresh TGraph dat
 
 # Plugin Installation
 ## download plugin
-Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo%2Fgephi-plugin-tgraph-demo-1.0.0.nbm)
+Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo%2Fgephi-plugin-tgraph-demo-1.0.0.nbm)(md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
 ## build plugin from source
 Download this plugin, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi.
 ## intall plugin to Gephi
@@ -38,19 +38,19 @@ from [here](7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 c
   - [2010-11-06](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101106.tar.gz)(md5:`91999663ba1be49920ad7b4877c2a0cb`)
   - [2010-11-07](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101107.tar.gz)(md5:`fd0846aa8b2fb767d389beea040c404e`)
   - [2010-11-08](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101108.tar.gz)(md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
-- *Extra all compressed data*.
+- **Extra all compressed data**.
 
 #### Build database
 1. In Gephi, click `Plugins`->`TGraph Demo DB Builder` to open the database builder.
 2. Choose `Topo.csv` as `Network File`
 3. Choose an empty folder as `Database Folder`
-4. Choose `20101104` as `Temporal Data Folder`, then
+4. Choose `20101104` as `Temporal Data Folder` (if you want import multiple days, just put them in one folder and choose it)
 5. Choose a period of time from `Time Range to import`
 6. Click `Build Database` and wait( import all traffic data will take about 40 minute and 6GB disk space )
 
 # Play with me
 
-[here](https://youtu.be/nbWa_5OL3GU) is a video tutorial [download link](http://mashuai.buaa.edu.cn/TGraphdemo.avi)
+[Here](https://youtu.be/nbWa_5OL3GU) is a video tutorial. [download this tutorial](http://mashuai.buaa.edu.cn/TGraphdemo.avi)
 
 
 # Notes
