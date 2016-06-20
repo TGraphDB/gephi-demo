@@ -60,7 +60,7 @@ from [here](7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 c
 
 2. All demo features(except `DB Builder`) are only avaiable when the database is connected.
 
-3. Gephi may produce an `Run out of memory` notice to you when you `import` the road network to ask you enlarge the memory which Gephi could use in your computer. This is because the default max size of memory which Gephi can use is 512MB. Just enlarge it as big as possible.
+3. Gephi may produce an `Run out of memory` notice to you when you `import` the road network to ask you enlarge the memory which Gephi could use in your computer. This is because the default max size of memory which Gephi can use is 512MB. You must have at least 2GB free memory for Gephi to play with an existing database. The more memory you give, the faster the program runs.
 
 4. You may find the road network has some error(road overlap, or wrong angle/length), this is because the raw data does not contains the exact latitude and longitude of the road start/end point, only contains road topologic, road length/angle. So when the network is drawn, it has such error. But it is good enough as a *demonstration*.
 
