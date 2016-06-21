@@ -50,7 +50,7 @@ from [here](7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 c
 5. Choose a period of time from `Time Range to import`
 6. Click `Build Database` and wait( import all traffic data will take about 40 minute and 6GB disk space )
 
-# Play with me
+# Play with data
 
 [Here](https://youtu.be/nbWa_5OL3GU) is a video tutorial. [Download this video](http://mashuai.buaa.edu.cn/TGraphdemo.avi)
 
