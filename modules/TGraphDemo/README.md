@@ -1,6 +1,8 @@
 TGraph Demo
 ----------------
 > A demonstration of TGraph database build on top of Gephi(as a plugin).
+>
+> TGraph is a database designed for temporal graph data.
 
 This Gephi plugin shows the power of TGraph database. It is a tiny traffic-query-system on a specific data set. The data set contains Beijing road network topological(about 110000 roads) and traffic data from 2010-11-04 00:00 to 2010-11-08 23:55 (about 1400 files, each contains traffic status of some or all roads at a specific time point)
 
@@ -18,7 +20,7 @@ Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraph
 Download the source code, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi.
 
 **Pre-requirements** `TGraph-kernel` and `TGraph-temporal-storage`, see `Notes` section.
-## intall plugin to Gephi
+## install plugin to Gephi
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
 then choose the `gephi-plugin-tgraph-demo-1.0.0.nbm` and press `OK`.
 
@@ -34,7 +36,7 @@ from [here](7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 c
 
 #### download raw data
 - Beijing network topologic, [Topo.csv](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
-- Traffic data(at lease one, but more if you would like) at:
+- Traffic data(at lease one, but more if you like) at:
   - [2010-11-04](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101104.tar.gz)(md5:`fbf555adb8fbc018c73016f31baed086`)
   - [2010-11-05](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101105.tar.gz)(md5:`989e76ad6e2606324c17804e4b3a72e3`)
   - [2010-11-06](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101106.tar.gz)(md5:`91999663ba1be49920ad7b4877c2a0cb`)
