@@ -14,20 +14,29 @@ This plugin also provide a Database-Builder to help you build a fresh TGraph dat
 - Maven (if you want to build this plugin from source)
 
 # Plugin Installation
-## download plugin
-Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo%2Fgephi-plugin-tgraph-demo-1.0.0.nbm)(md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
-## build plugin from source
+Follow these steps to complete the installation of the plugin.
+## Get plugin
+You have two options: to download the one we packaged, or to build plugin from source code (this github repo, currently unavailable).
+
+### download plugin
+Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm)(md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
+
+### build plugin from source
 Download the source code, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi.
 
 **Pre-requirements** `TGraph-kernel` and `TGraph-temporal-storage`, see `Notes` section.
+
 ## install plugin to Gephi
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
 then choose the `gephi-plugin-tgraph-demo-1.0.0.nbm` and press `OK`.
 
 Then check the `install` checkbox and press `Install` button. This plugin is not signed, install it at your risk.
+
 # TGraph Database Installation
+You have two options: to download an exist database from web, or build the database yourself from raw data. The former choice is quick and easy but only contains temporal data of 5 hours, while the later one provide more configurations.
+
 ### Download an exist DB
-download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:16 to 10:06 (about 216MB)
+Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:16 to 10:06 (about 216MB)
 from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
 
 ### Build DB from raw data
