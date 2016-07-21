@@ -28,7 +28,7 @@ Then check the `install` checkbox and press `Install` button. This plugin is not
 # TGraph Database Installation
 ### Download an exist DB
 download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:16 to 10:06 (about 216MB)
-from [here](7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
+from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
 
 ### Build DB from raw data
 > 1. Build database from raw data requires extra 3GB memory in your computer.
