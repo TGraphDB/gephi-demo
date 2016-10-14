@@ -291,15 +291,17 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
 //            System.out.println(r.getDynPropertyPointValue("travel-time", g));
 
 //            System.out.println("not so good");
-            int travelTime = getEarliestTravelTime(r, g);;
 
+            int travelTime;
             switch (getStatus(neighbor)){
                 case OPEN:
+                    travelTime = getEarliestTravelTime(r, g);
                     setG(neighbor, travelTime + g);
                     setStatus(neighbor, Status.CLOSE);
                     setParent(neighbor, node);
                     break;
                 case CLOSE:
+                    travelTime = getEarliestTravelTime(r, g);
                     int gNeighbor = (Integer) neighbor.getProperty("algo-astar-G");
                     if(gNeighbor>g+travelTime){
                         setG(neighbor,g+travelTime);
@@ -383,7 +385,6 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         totalNodeCount = (int) traversal.getVisitedNodeCount();
         setStatus(startNode, Status.CLOSE);
         setG(startNode, t0);
-        minHeap.add(startNode);
     }
 
     private void setG(Node node, int value) {
