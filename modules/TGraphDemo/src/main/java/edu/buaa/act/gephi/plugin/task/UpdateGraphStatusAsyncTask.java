@@ -38,23 +38,27 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
             if(tgraphId!=null){
                 Relationship r = db.getRelationshipById((Long) tgraphId);
                 if(r!=null){
-                    Object fullStatus = r.getDynPropertyPointValue("full-status", time);
-                    if(fullStatus!=null){
+                    if(r.hasProperty("full-status")) {
+                        Object fullStatus = r.getDynPropertyPointValue("full-status", time);
+                        if (fullStatus != null) {
 //                        System.out.println("has status.");
-                        int status = (Integer) fullStatus;
-                        if(status==1){ // smooth
-                            edge.setColor(Color.GREEN);
-                        }else if(status==2){ // slow
-                            edge.setColor(Color.ORANGE);
-                        }else if(status==3){ //jam
-                            edge.setColor(Color.RED);
-                        }else{ // no data. black.
-                            throw new RuntimeException("TGraph: full-status("+fullStatus+") not in [1,2,3]. This should not happen!");
-                        }
+                            int status = (Integer) fullStatus;
+                            if (status == 1) { // smooth
+                                edge.setColor(Color.GREEN);
+                            } else if (status == 2) { // slow
+                                edge.setColor(Color.ORANGE);
+                            } else if (status == 3) { //jam
+                                edge.setColor(Color.RED);
+                            } else { // no data. black.
+                                throw new RuntimeException("TGraph: full-status(" + fullStatus + ") not in [1,2,3]. This should not happen!");
+                            }
 //                        float speed = ((Integer) travelTime)*1f/length;
-                    }else{ // about 1/4 of edge do not contains dynamic property.
+                        } else { // has dynamic property, but not after this time.
 //                        System.out.println("null status");
-                        edge.setColor(new Color(0x303030));
+                            edge.setColor(new Color(0x303030));
+                        }
+                    }else{ // about 1/4 of edge do not contains dynamic property.
+                        edge.setColor(Color.BLUE);
                     }
                 }else{
                     throw new RuntimeException("Relationship not found in TGraph!");
