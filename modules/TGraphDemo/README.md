@@ -19,7 +19,7 @@ Follow these steps to complete the installation of the plugin.
 You have two options: to download the one we packaged, or to build plugin from source code (this github repo, currently unavailable).
 
 ### download plugin
-Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm)(md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
+Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
 
 ### build plugin from source
 Download the source code, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi.
@@ -37,7 +37,7 @@ You have two options: to download an exist database from web, or build the datab
 
 ### Download an exist DB
 Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:16 to 10:06 (about 216MB)
-from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
+from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
 
 ### Build DB from raw data
 > 1. Build database from raw data requires extra 3GB memory in your computer.
