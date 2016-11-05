@@ -6,14 +6,11 @@
 
 package edu.buaa.act.gephi.plugin.task;
 
-import edu.buaa.act.gephi.plugin.utils.GUIHook;
+import edu.buaa.act.gephi.plugin.utils.LinearGradientInt;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
-import org.act.neo4j.temporal.demo.utils.Helper;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphModel;
-import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.Direction;
@@ -21,73 +18,52 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.awt.*;
+import java.util.*;
 
 /**
- * Algorithm to find earliest-arrive path in a temporal graph satisfying FIFO property.
- * An implementation of the generalized Dijkstra algorithm. See:
- * Dreyfus, Stuart E. "An Appraisal of Some Shortest-Path Algorithms." Operations Research 17.3(1969):395-412.
+ * Algorithm to find reachable area from a given start position at a given departure time in a temporal
+ * graph satisfying FIFO property. Roads are colorized according to the time needed to get there.
+ * Roads can not be reached in 2000 seconds is colored grey.
  * Note: This algorithm runs in one transaction and commit NOTHING to database.
- *
+ * 2016-10
  * @author song
  */
-public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWrapper<Object> implements LongTask, Runnable{
+public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOneTransactionAsyncTask{
     private GraphDatabaseService db;
     private GraphModel model;
     private ProgressTicket progress;
     private long start;
     private long end;
     private int startTime;
-    private Color pathColor;
-    private int totalNodeCount;
-    private boolean shouldGo=true;
+    volatile private boolean shouldGo=true;
     private Map<Long,org.gephi.graph.api.Node> tgraphNode2GephiNode = new HashMap<Long,org.gephi.graph.api.Node>();
-    private List<Long> path;
-    private List<Integer> timeList;
-    private int pathRealLength = 0;
+    private int maxTravelTime = 0;
     private long searchCount=0;
+    private LinearGradientInt colors;
+    private int timeOutSeconds = 2000;
 
 
-    public TimeDependentDijkstraOneTransactionAsyncTask(
+    public ReachableAreaVisualizationAsyncTask(
             GraphDatabaseService db,
             GraphModel model,
             long startId, long endId, int startTime,
             Color pathColor){
-        super(false); // do not commit this transaction.
+        super(db, model, startId, endId, startTime, pathColor);
         this.db = db;
         this.model = model;
         this.start = startId;
         this.end = endId;
         this.startTime = startTime;
-        this.pathColor = pathColor;
         System.out.println("start time: " + timestamp2String(startTime));
     }
 
     @Override
     public void run() {
-        Thread.currentThread().setName("TGraph.T.D.PathFinding.OneTransaction");
-        Progress.start(progress, Integer.MAX_VALUE);
+        Thread.currentThread().setName("TGraph.E.A.PathVisualization");
+        Progress.start(progress);
         this.start(db);
         Progress.finish(progress);
-        new GUIHook<Object>() {
-            @Override
-            public void guiHandler(Object value) {
-                onResult(searchCount, path, timeList, pathRealLength);
-            }
-        }.guiHandler(null);
-
-    }
-
-    public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
-
     }
 
     @Override
@@ -95,27 +71,22 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         try {
             System.out.println("enter tx");
             Progress.setDisplayName(progress, "initial algorithm...");
-            Progress.switchToIndeterminate(progress);
             initAlgo(start, end, startTime);
-            System.out.println("init done");
-            Progress.switchToDeterminate(progress, totalNodeCount);
-            Progress.setDisplayName(progress, "searching...");
+            this.colors = new LinearGradientInt(
+                    new Color[]{Color.BLUE , Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED},
+                    new float[]{0f, 0.25f, 0.5f, 0.75f, 1f},
+                    this.timeOutSeconds);
 
-            long node;
-            while ((node = findSmallestClosedNode()) != end && shouldGo) {
-//                System.out.println("search " + node);
+            System.out.println("init done");
+            Progress.setDisplayName(progress, "searching and drawing...");
+
+            Long node;
+            while ((node = findSmallestClosedNode())!=null && shouldGo) {
                 loopAllNeighborsUpdateGValue(node);
                 searchCount++;
                 Progress.progress(progress, searchCount + " nodes searched");
             }
-            System.out.println("search end");
-            Progress.setDisplayName(progress, "generating results...");
-            path = getPath();
-            System.out.println("get path done");
-            timeList = getArriveTime(path);
-            System.out.println("get time done");
-            System.out.println("Path found~ length:" + path.size() + " time:" + timePeriod2Str(timeList.get(timeList.size() - 1) - timeList.get(0)));
-
+            System.out.println("search end. max travel time is "+timePeriod2Str(maxTravelTime));
         }catch(RuntimeException e){
             e.printStackTrace();
         }catch (Exception e){
@@ -152,95 +123,6 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         this.progress = progressTicket;
     }
 
-    private List<Long> getPath() {
-        final List<Long> rPath = new ArrayList<Long>();
-        Long parent=end;
-        long child = end;
-        rPath.add(end);
-        while((parent = getParent(child))!=start){
-            if(!shouldGo) break;
-            Progress.progress(progress,"path length:"+rPath.size());
-            rPath.add(parent);
-            org.gephi.graph.api.Node n1 = tgraphNode2GephiNode.get(child);
-            org.gephi.graph.api.Node n2 = tgraphNode2GephiNode.get(parent);
-            n1.setColor(pathColor);
-            n2.setColor(pathColor);
-            Edge edge = model.getGraph().getEdge(n2, n1);
-            if(edge==null){
-                edge = model.getGraph().getEdge(n1, n2);
-                if(edge!=null){
-                    edge.setColor(pathColor);
-                    edge.setWeight(2f);
-                    pathRealLength += (Integer) edge.getAttribute("road_length");
-                    System.out.println("edge has direct.");
-                }else{
-                    System.out.println("no edge between nodes! "+parent+"--"+child);
-                }
-            }else{
-                edge.setColor(pathColor);
-                edge.setWeight(2f);
-                pathRealLength += (Integer) edge.getAttribute("road_length");
-            }
-            child = parent;
-        }
-        rPath.add(start);
-        tgraphNode2GephiNode.get(end).setSize(3f);
-        tgraphNode2GephiNode.get(end).setColor(Color.GREEN);
-        // connect last path: start->first child.
-        org.gephi.graph.api.Node begin = tgraphNode2GephiNode.get(start);
-        org.gephi.graph.api.Node end = tgraphNode2GephiNode.get(child);
-        Edge edge = model.getGraph().getEdge(begin, end);
-        edge.setColor(pathColor);
-        edge.setWeight(2f);
-        pathRealLength += (Integer) edge.getAttribute("road_length");
-        begin.setSize(3f);
-        begin.setColor(Color.RED);
-        //reverse array
-        final List<Long> path = new ArrayList<Long>();
-        for(int i=rPath.size()-1;i>=0;i--){
-            path.add(rPath.get(i));
-        }
-        return path;
-    }
-
-    private List<Integer> getArriveTime(final List<Long> path){
-        final List<Integer> timeList = new ArrayList<Integer>();
-        for (int i=0;i<path.size();i++){
-            long nodeId = path.get(i);
-            if(!shouldGo) break;
-            int arriveTime = getGvalue(nodeId);
-            timeList.add(arriveTime);
-            org.gephi.graph.api.Node node = tgraphNode2GephiNode.get(nodeId);
-            String label;
-            if(i==0) { //start node
-                label = "Start At " + Helper.timeStamp2String(arriveTime);
-            }else if(i==(path.size()-1)){ //end node
-                label = "Arrive At " + Helper.timeStamp2String(arriveTime) + ", "+timePeriod2Str(arriveTime-timeList.get(0));
-            }else{ // node in between
-                label = Helper.timeStamp2String(arriveTime).substring(11);
-            }
-            node.setLabel(label);
-            System.out.println(label);
-            Progress.progress(progress,nodeId+" "+label);
-        }
-        return timeList;
-    }
-
-    public String timePeriod2Str(int timePeriodSecond) {
-        int t = timePeriodSecond;
-        if(t<60){
-            return t+" seconds";
-        }else if(t<600){
-            return t/60 +" minute "+ t%60+" seconds";
-        }else if(t<3600){
-            return t/60 +" minute";
-        }else if((t % 3600)/60> 10){
-            return t/3600+" hours "+(t%3600)/60+" minute";
-        }else{
-            return t/3600+" hours";
-        }
-    }
-
     private String timestamp2String(final int timestamp){
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(((long) timestamp) * 1000);
@@ -249,26 +131,8 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         return result;
     }
 
-    private int getGvalue(long nodeId) {
-        return getGvalue(db.getNodeById(nodeId));
-    }
     private int getGvalue(Node node) {
         return (Integer) node.getProperty("algo-astar-G");
-    }
-
-    /**
-     * get parent node, must used in transaction.
-     * @param me current node id
-     * @return parent node id
-     */
-    private Long getParent(long me) {
-        Object parent = db.getNodeById(me).getProperty("algo-astar-parent");
-//        System.out.println(me+" "+parent);
-        if(parent!=null){
-            return db.getNodeById((Long)parent).getId();
-        }else{
-            return null;
-        }
     }
 
     /**
@@ -286,12 +150,6 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         for(Relationship r : node.getRelationships(Direction.OUTGOING)){
             if(!shouldGo) return;
             Node neighbor = r.getOtherNode(node);
-//            System.out.println("good");
-//            System.out.println(r+" "+g);
-//            System.out.println(r.getDynPropertyPointValue("travel-time", g));
-
-//            System.out.println("not so good");
-
             int travelTime;
             switch (getStatus(neighbor)){
                 case OPEN:
@@ -310,7 +168,46 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
                     break;
             }
         }
+        if(nodeId!=start) drawPathToParent(node);
         setStatus(node, Status.FINISH);
+    }
+
+    private void drawPathToParent(Node node) {
+        int g = getGvalue(node);
+        int travelTime = g-startTime;
+        if(maxTravelTime <travelTime){
+            maxTravelTime = travelTime;
+//            System.out.println(timePeriod2Str(maxTravelTime));
+        }
+
+        long parentId;
+        long childId = node.getId();
+        Object parent = node.getProperty("algo-astar-parent");
+        if(parent!=null) {
+            parentId = (Long) parent;
+            org.gephi.graph.api.Node n1 = tgraphNode2GephiNode.get(childId);
+            org.gephi.graph.api.Node n2 = tgraphNode2GephiNode.get(parentId);
+            Color colorOfGValue;
+            if (travelTime < this.timeOutSeconds) {
+                colorOfGValue = new Color(this.colors.getValue(travelTime), true);
+            } else {
+                colorOfGValue = new Color(0x696969);
+            }
+            n1.setColor(colorOfGValue);
+            Edge edge = model.getGraph().getEdge(n2, n1);
+            if (edge == null) {
+                edge = model.getGraph().getEdge(n1, n2);
+                if (edge != null) {
+                    edge.setColor(colorOfGValue);
+                } else {
+                    throw new RuntimeException("edge of " + childId + "-" + parentId + " not found");
+                }
+            } else {
+                edge.setColor(colorOfGValue);
+            }
+        }else{
+            //do nothing
+        }
     }
 
     /**
@@ -355,8 +252,12 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
      * RE VALID this when using algorithm other than Dijkstra.
      * @return node in set( status == CLOSE ) and has smallest G value among the set.
      */
-    private long findSmallestClosedNode() {
-        return minHeap.peek().getId();
+    private Long findSmallestClosedNode() {
+        try {
+            return minHeap.peek().getId();
+        }catch (NullPointerException e){
+            return null;
+        }
     }
 
     /**
@@ -375,18 +276,15 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
             tgraphNode2GephiNode.put(tgraphNodeId, node);
 //            node.setColor(new Color(0xc0c0c0));
 //            node.setLabel("");
-            Progress.progress(progress);
         }
         Node startNode = db.getNodeById(from);
         TGraphTraversal traversal = new TGraphTraversal(db);
         traversal.DFS(startNode, new HashSet<Long>(), new DFSAction<Node>(){
             public boolean visit(Node node) {
-                Progress.progress(progress);
                 setStatus(node, Status.OPEN);
                 return shouldGo;
             }
         }, false);
-        totalNodeCount = (int) traversal.getVisitedNodeCount();
         setStatus(startNode, Status.CLOSE);
         setG(startNode, t0);
     }
@@ -396,7 +294,6 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
     }
 
     private void setParent(Node node, Node parent) {
-//        pathColor.
         node.setProperty("algo-astar-parent",parent.getId());
     }
 
@@ -424,32 +321,4 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends TransactionWra
         }
     }
 
-    public String pathLength2Str(int len) {
-        if(len<2000){
-            return len+" m";
-        }else{
-            return String.format("%.1f km",len/1000f);
-        }
-    }
-
-
-    public enum Status{
-        OPEN(0),CLOSE(1),FINISH(2);
-        private int value;
-        Status(int value){
-            this.value=value;
-        }
-        public int value(){
-            return this.value;
-        }
-
-        public static Status valueOf(int status) {
-            switch (status){
-                case 0: return OPEN;
-                case 1: return CLOSE;
-                case 2: return FINISH;
-            }
-            throw new RuntimeException("no such value in Status!");
-        }
-    }
 }

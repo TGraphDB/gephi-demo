@@ -57,7 +57,12 @@ public class LinearGradientInt {
     }
 
     private int tween(Color c1, Color c2, float p) {
-        return new Color((int)((float)c1.getRed() * (1.0F - p) + (float)c2.getRed() * p), (int)((float)c1.getGreen() * (1.0F - p) + (float)c2.getGreen() * p), (int)((float)c1.getBlue() * (1.0F - p) + (float)c2.getBlue() * p), (int)((float)c1.getAlpha() * (1.0F - p) + (float)c2.getAlpha() * p)).getRGB();
+        return new Color(
+                (int)((float)c1.getRed() * (1.0F - p) + (float)c2.getRed() * p),
+                (int)((float)c1.getGreen() * (1.0F - p) + (float)c2.getGreen() * p),
+                (int)((float)c1.getBlue() * (1.0F - p) + (float)c2.getBlue() * p),
+                (int)((float)c1.getAlpha() * (1.0F - p) + (float)c2.getAlpha() * p))
+                .getRGB();
     }
 
     /**

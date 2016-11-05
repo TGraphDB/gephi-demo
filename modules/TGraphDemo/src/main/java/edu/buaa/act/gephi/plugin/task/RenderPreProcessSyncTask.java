@@ -40,7 +40,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
     final private int winSize;
     final private float heatAreaScale;
     private final HeatMapRenderer renderer;
-    private final double imageScale;
+    private final double imageScale;//should fix to 1d.这个是当时由于渲染速度太慢所以增加的一个参数，这个参数本身的处理逻辑好像有一点bug（如果是1的话就没问题），而且后来由于渲染速度提高，整个渲染过程只需要不到50ms，所以就没用了，这里先不改了～
     private ProgressTicket progress;
     volatile private boolean shouldGo=true;
     private float maxHeatValue = 0f;
@@ -157,32 +157,38 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
 //        System.out.println(r + " " + startTime + " " + winSize + " " + r.getDynPropertyPointValue("full-status", startTime + winSize / 2));
 //        return (Integer) r.getProperty("length");
         final int[] result = new int[]{0};
-        Integer tmp = (Integer) r.getDynPropertyRangeValue("full-status", startTime, startTime + winSize, new RangeQueryCallBack() {
-            @Override
-            public void onCall(Slice value) {
-                byte[] statusByte = value.slice(0,4).getBytes();
-                int status = (Integer) DynPropertyValueConvertor.revers("Integer", statusByte);
+        if(r.hasProperty("full-status")){
+            Integer tmp = (Integer) r.getDynPropertyRangeValue("full-status", startTime, startTime + winSize, new RangeQueryCallBack() {
+                @Override
+                public void setValueType(String valueType) {}
+                @Override
+                public void onCall(Slice value) {
+//                value.getInt(0);
+                    byte[] statusByte = value.slice(0,4).getBytes();
+                    int status = (Integer) DynPropertyValueConvertor.revers("Integer", statusByte);
 //                System.out.print(status+",");
-                dataCount++;
-                switch (status) {
-                    case 2:
-                        result[0]++;
-                        break;
-                    case 3:
-                        result[0] += 3;
-                        break;
+                    dataCount++;
+                    switch (status) {
+                        case 2:
+                            result[0]++;
+                            break;
+                        case 3:
+                            result[0] += 3;
+                            break;
+                    }
                 }
-            }
-            @Override
-            public Slice onReturn() {
-                Slice value = new Slice(4);
-                value.setInt(0, result[0]);
-//                System.out.println();
-                return value;
-            }
-        });
+                @Override
+                public Slice onReturn() {
+                    Slice value = new Slice(4);
+                    value.setInt(0, result[0]);
+                    return value;
+                }
+            });
 //        System.out.println(tmp+" "+result[0]);
-        return result[0];
+            return result[0];
+        }else{
+            return 0;
+        }
     }
 
     private void saveImageToFile(BufferedImage image){

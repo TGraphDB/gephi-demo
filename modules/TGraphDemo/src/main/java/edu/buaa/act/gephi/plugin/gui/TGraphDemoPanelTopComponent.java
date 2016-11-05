@@ -25,9 +25,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerModel;
@@ -36,9 +34,11 @@ import edu.buaa.act.gephi.plugin.utils.TGraphFileView;
 import org.act.neo4j.temporal.demo.utils.Helper;
 
 import org.gephi.graph.api.GraphController;
+import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.project.api.ProjectController;
 import org.gephi.utils.longtask.api.LongTaskExecutor;
+import org.gephi.utils.longtask.spi.LongTask;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -135,6 +135,17 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         Spinner_time = new javax.swing.JSpinner();
         Slider_time = new javax.swing.JSlider();
         Label_refreshTaskStatus = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel11 = new javax.swing.JLabel();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
         Tab_heatMap = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         Spinner_HeatMapStartTime = new javax.swing.JSpinner();
@@ -436,19 +447,153 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 .addContainerGap(13, Short.MAX_VALUE))
         );
 
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jPanel10.border.title"))); // NOI18N
+
+        jPanel2.setBackground(new java.awt.Color(255, 0, 0));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel11, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel11.text")); // NOI18N
+
+        jPanel8.setBackground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel15, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel15.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel14, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel14.text")); // NOI18N
+
+        jPanel9.setBackground(new java.awt.Color(0, 51, 255));
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        jPanel3.setBackground(new java.awt.Color(255, 153, 51));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel12, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel12.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel13, org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.jLabel13.text")); // NOI18N
+
+        jPanel7.setBackground(new java.awt.Color(0, 204, 0));
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 17, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11)
+                        .addGap(28, 28, 28)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel13))
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel14)
+                            .addComponent(jLabel15))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel11))
+                    .addComponent(jLabel12)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel13)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel14)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel15)
+                    .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout Tab_pathFinding1Layout = new javax.swing.GroupLayout(Tab_pathFinding1);
         Tab_pathFinding1.setLayout(Tab_pathFinding1Layout);
         Tab_pathFinding1Layout.setHorizontalGroup(
             Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(0, 4, Short.MAX_VALUE))
         );
         Tab_pathFinding1Layout.setVerticalGroup(
             Tab_pathFinding1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Tab_pathFinding1Layout.createSequentialGroup()
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(144, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         TabbedPane_content.addTab(org.openide.util.NbBundle.getMessage(TGraphDemoPanelTopComponent.class, "TGraphDemoPanelTopComponent.Tab_pathFinding1.TabConstraints.tabTitle"), Tab_pathFinding1); // NOI18N
@@ -626,7 +771,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 147, Short.MAX_VALUE))
+                .addContainerGap(147, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -789,28 +934,34 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             long startNodeTGraphId = (Long) startNode.getAttribute("tgraph_id");
             long endNodeTGraphId = (Long) endNode.getAttribute("tgraph_id");
             int time = dateTimeConvert(((SpinnerDateModel) model).getDate());
-            TimeDependentDijkstraOneTransactionAsyncTask task =  new TimeDependentDijkstraOneTransactionAsyncTask(
-                    db,
-                    gc.getGraphModel(),
-                    startNodeTGraphId,
-                    endNodeTGraphId,
-                    time,
-                    Panel_resultColor.getBackground()){
-                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
-                    int arriveTime = arriveTimes.get(arriveTimes.size()-1);
-                    int startTime = arriveTimes.get(0);
-                    String result="Path found! Search "+searchNodeCount+" nodes.\n"+
-                            "Departure at: "+ Helper.timeStamp2String(startTime)+"\n"+
-                            "  Arrive  at: "+ Helper.timeStamp2String(arriveTime)+"\n"+
-                            "   Time Cost: "+ this.timePeriod2Str(arriveTime-startTime)+"\n"+
-                            "      length: "+ this.pathLength2Str(pathRealLength);
-//                    for(int i=0;i<path.size();i++){
-//                        result += (path.get(i)+"["+Helper.timeStamp2String((i))+"]-->\n");
-//                    }
-                    System.out.println(result);
-                    notice(result);
-                }
-            };
+            String algorithms = (String)ComboBox_algorithms.getSelectedItem();
+            TimeDependentDijkstraOneTransactionAsyncTask task;
+            if("Time Dependent Dijkstra".equals(algorithms)) {
+                task = new TimeDependentDijkstraOneTransactionAsyncTaskImpl(
+                        db,
+                        gc.getGraphModel(),
+                        startNodeTGraphId,
+                        endNodeTGraphId,
+                        time,
+                        Panel_resultColor.getBackground());
+            }else{
+//            }else if("Dijkstra".equals(algorithms)){
+//                task =  new DijkstraOneTransactionAsyncTask(
+//                    db,
+//                    gc.getGraphModel(),
+//                    startNodeTGraphId,
+//                    endNodeTGraphId,
+//                    time,
+//                    Panel_resultColor.getBackground());
+//            }else{
+                task =  new ReachableAreaVisualizationAsyncTask(
+                        db,
+                        gc.getGraphModel(),
+                        startNodeTGraphId,
+                        endNodeTGraphId,
+                        time,
+                        Panel_resultColor.getBackground());
+            }
             new LongTaskExecutor(true).execute(task, task);
         }
     }//GEN-LAST:event_Button_findShortestPathMouseClicked
@@ -1012,6 +1163,11 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private javax.swing.JToggleButton ToggleButton_chooseStartNode;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1021,9 +1177,15 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     @Override
@@ -1105,9 +1267,10 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 Label_subGraphCount.setText("");
                 ComboBox_algorithms.removeAllItems();
                 ComboBox_algorithms.addItem("Time Dependent Dijkstra");
-                ComboBox_algorithms.addItem("Time Dependent A*");
-                ComboBox_algorithms.addItem("Time Dependent ALT");
-                ComboBox_algorithms.addItem("Dijkstra");
+                ComboBox_algorithms.addItem("Reachable Area");
+//                ComboBox_algorithms.addItem("Time Dependent A*");
+//                ComboBox_algorithms.addItem("Time Dependent ALT");
+//                ComboBox_algorithms.addItem("Dijkstra");
                 Slider_startTime.setMinimum(0);
                 Slider_startTime.setMaximum(100);
                 Label_startNode.setText("");
@@ -1213,6 +1376,25 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 setEnableAllChild(((JComponent) child), enable);
             }
             child.setEnabled(enable);
+        }
+    }
+
+    private class TimeDependentDijkstraOneTransactionAsyncTaskImpl extends TimeDependentDijkstraOneTransactionAsyncTask {
+
+        public TimeDependentDijkstraOneTransactionAsyncTaskImpl(GraphDatabaseService db, GraphModel model, long startId, long endId, int startTime, Color pathColor) {
+            super(db, model, startId, endId, startTime, pathColor);
+        }
+
+        public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
+            int arriveTime = arriveTimes.get(arriveTimes.size()-1);
+            int startTime = arriveTimes.get(0);
+            String result="Path found! Search "+searchNodeCount+" nodes.\n"+
+                    "Departure at: "+ Helper.timeStamp2String(startTime)+"\n"+
+                    "  Arrive  at: "+ Helper.timeStamp2String(arriveTime)+"\n"+
+                    "   Time Cost: "+ this.timePeriod2Str(arriveTime-startTime)+"\n"+
+                    "      length: "+ this.pathLength2Str(pathRealLength);
+            System.out.println(result);
+            notice(result);
         }
     }
     

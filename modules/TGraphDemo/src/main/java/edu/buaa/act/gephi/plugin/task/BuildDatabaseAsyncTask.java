@@ -37,7 +37,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
     private String dbPath;
     private GraphDatabaseService db;
     private ProgressTicket progress;
-    private boolean shouldGo=true;
+    private volatile boolean shouldGo=true;
     private int[] maxT;
     private int[] minT;
     private int[] dataCount;
