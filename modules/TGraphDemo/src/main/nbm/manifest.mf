@@ -1,8 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Name: Node Color Manager
+OpenIDE-Module-Name: TGraph Demo
 OpenIDE-Module-Requires: org.openide.windows.WindowManager
-OpenIDE-Module-Short-Description: Share node colors among multiple graph
-OpenIDE-Module-Long-Description: Useful if you want to keep the same node to be the same color across different graph/projects, by using a file to keep track of node colors among multiple graph.
-    Note that the tool identify nodes by their labels, so your graph must have unique label for each node. If two or more node has same label, only one will be restored. When restore from file, only the nodes which match the labels in file would be colored, others will remain their original color.
-    Source code: https://github.com/songjinghe/gephi-plugins-1, more details: https://github.com/songjinghe/gephi-plugins-1/wiki
+OpenIDE-Module-Short-Description: A demonstration of TGraph database which is designed for temporal graph data.
+OpenIDE-Module-Long-Description: This Gephi plugin shows the power of TGraph database. TGraph is a database designed to manage temporal graph data. This plugin comes with TGraph's kernel, and implement a tiny traffic-query-system on a specific data set. It implements several algorithms: Heatmap (aggregate) of traffic status, Earliest arrive path, Historical query of traffic status and so on. Start with our 3-minutes video tutorial: https://youtu.be/nbWa_5OL3GU or http://mashuai.buaa.edu.cn/TGraphdemo.avi . For more help, see https://github.com/songjinghe/gephi-plugins-1/tree/TGraphDemo . To get more info of TGraph Database, see http://dx.doi.org/10.1145/2983323.2983335
 OpenIDE-Module-Display-Category: Tool

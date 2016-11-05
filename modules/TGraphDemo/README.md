@@ -14,19 +14,9 @@ This plugin also provide a Database-Builder to help you build a fresh TGraph dat
 - Maven (if you want to build this plugin from source)
 
 # Plugin Installation
-Follow these steps to complete the installation of the plugin.
-## Get plugin
-You have two options: to download the one we packaged, or to build plugin from source code (this github repo, currently unavailable).
 
-### download plugin
-Download lastest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
+Download latest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`1a0c6ec556b188c830d7f0f5c2e4ee00`)
 
-### build plugin from source
-Download the source code, and execute `mvn package` in project root directory, then `PROJECT_ROOT/modules/target/TGraphDemo/target/gephi-plugin-tgraph-demo-1.0.0.nbm` is the archived plugin. You can then install it in Gephi.
-
-**Pre-requirements** `TGraph-kernel` and `TGraph-temporal-storage`, see `Notes` section.
-
-## install plugin to Gephi
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
 then choose the `gephi-plugin-tgraph-demo-1.0.0.nbm` and press `OK`.
 
@@ -40,11 +30,11 @@ Download a tiny, out-of-the-box TGraph database which contains Beijing road netw
 from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/TGraph-demo-DB-without-log.tar)(md5 checksum:`297f46d5ab63ed35795ba853ad33b33a`)
 
 ### Build DB from raw data
-> 1. Build database from raw data requires extra 3GB memory in your computer.
+> 1. Build database from raw data requires extra 1~3GB memory in your computer.
 > 2. You must install this plugin to Gephi to use this feature.
 
 #### download raw data
-- Beijing network topologic, [Topo.csv](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
+- Beijing network topology, [Topo.csv](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
 - Traffic data(at lease one, but more if you like) at:
   - [2010-11-04](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101104.tar.gz)(md5:`fbf555adb8fbc018c73016f31baed086`)
   - [2010-11-05](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101105.tar.gz)(md5:`989e76ad6e2606324c17804e4b3a72e3`)
@@ -69,18 +59,28 @@ from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/TGraph-demo-DB-with
 # Notes
 1. **Disconnect from database BEFORE you close Gephi**, or the database may be **damaged**.
 
-2. All demo features(except `DB Builder`) are only avaiable when the database is connected.
+2. All demo features(except `DB Builder`) are only available when the database is connected.
 
 3. Gephi may produce an `Run out of memory` notice to you when you `import` the road network to ask you enlarge the memory which Gephi could use in your computer. This is because the default max size of memory which Gephi can use is 512MB. You must have at least 2GB free memory for Gephi to play with an existing database. The more memory you give, the faster the program runs.
 
 4. You may find the road network has some error(road overlap, or wrong angle/length), this is because the raw data does not contains the exact latitude and longitude of the road start/end point, only contains road topologic, road length/angle. So when the network is drawn, it has such error. But it is good enough as a *demonstration*.
 
-5. In the `Path Search` pannel, only the algorithm `Time Dependent Dijkstra` is implemented.
+5. In the `Path Search` panel, only the algorithm `Time Dependent Dijkstra` is implemented.
 
 6. To build this plugin from source code, you must have installed `TGraph-kernel` and `tgraph-temporal-storage` to your local maven repo, but we have not publish these two program yet. So you'd better download the plugin we already package.
 
-# Known issues
-- you can only connect **ONE** time in a Gephi session. To connect to another TGraph database or the same TGraph database twice, you must restart Gephi.
+7. Do remember to open an empty project in Gephi **BEFORE** you connect to a TGraph DB. Or Gephi may produce a NullPointerException Error.
+
+8. Do check the `TGraph Window Heatmap` option in Gephi's `Render Manager` in the `preview` panel. Or you may hit unexpected error.
 
 # Feed back
 please use issue.
+
+# Change log
+## 2016-10
+1. Better file chooser.
+2. Fix Name error in Gephi plugin manager.
+3. Packed with new TGraph kernel which is compatible with neo4j 2.2.3.
+
+## 2016-06
+A runnable version.
