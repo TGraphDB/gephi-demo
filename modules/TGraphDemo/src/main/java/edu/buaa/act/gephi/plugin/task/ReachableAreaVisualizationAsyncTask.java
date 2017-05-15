@@ -20,6 +20,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Algorithm to find reachable area from a given start position at a given departure time in a temporal
@@ -49,7 +50,12 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
             GraphModel model,
             long startId, long endId, int startTime,
             Color pathColor){
-        super(db, model, startId, endId, startTime, pathColor);
+        super(db, model, startId, endId, startTime, pathColor, new GUICallBack() {
+            @Override
+            public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength) {
+
+            }
+        });
         this.db = db;
         this.model = model;
         this.start = startId;
@@ -121,14 +127,6 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
     @Override
     public void setProgressTicket(ProgressTicket progressTicket) {
         this.progress = progressTicket;
-    }
-
-    private String timestamp2String(final int timestamp){
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(((long) timestamp) * 1000);
-        String result = c.get(Calendar.YEAR)+"-"+(c.get(Calendar.MONTH)+1)+"-"+c.get(Calendar.DAY_OF_MONTH)+" "+
-                c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE);
-        return result;
     }
 
     private int getGvalue(Node node) {

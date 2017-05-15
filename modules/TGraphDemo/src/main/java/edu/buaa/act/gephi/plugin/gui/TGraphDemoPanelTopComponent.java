@@ -6,6 +6,8 @@
 package edu.buaa.act.gephi.plugin.gui;
 
 import static edu.buaa.act.gephi.plugin.gui.PluginStatus.*;
+import static edu.buaa.act.gephi.plugin.task.Traverse.pathLength2Str;
+import static edu.buaa.act.gephi.plugin.task.Traverse.timePeriod2Str;
 
 //import edu.buaa.act.gephi.plugin.preview.HeatMapStatisticPreview;
 import edu.buaa.act.gephi.plugin.exception.BackgroundTaskErrorHandler;
@@ -38,7 +40,6 @@ import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.project.api.ProjectController;
 import org.gephi.utils.longtask.api.LongTaskExecutor;
-import org.gephi.utils.longtask.spi.LongTask;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -935,25 +936,44 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
             long endNodeTGraphId = (Long) endNode.getAttribute("tgraph_id");
             int time = dateTimeConvert(((SpinnerDateModel) model).getDate());
             String algorithms = (String)ComboBox_algorithms.getSelectedItem();
-            TimeDependentDijkstraOneTransactionAsyncTask task;
+            Traverse task;
+//            TimeDependentDijkstraOneTransactionAsyncTask task;
+
+            Traverse.GUICallBack callback = new Traverse.GUICallBack() {
+                @Override
+                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength) {
+                    int arriveTime = arriveTimes.get(arriveTimes.size() - 1);
+                    int startTime = arriveTimes.get(0);
+                    String result = "Path found! Search " + searchNodeCount + " nodes.\n" +
+                            "Departure at: " + Helper.timeStamp2String(startTime) + "\n" +
+                            "  Arrive  at: " + Helper.timeStamp2String(arriveTime) + "\n" +
+                            "   Time Cost: " + timePeriod2Str(arriveTime - startTime) + "\n" +
+                            "      length: " + pathLength2Str(pathRealLength);
+                    System.out.println(result);
+                    notice(result);
+                }
+            };
+
             if("Time Dependent Dijkstra".equals(algorithms)) {
-                task = new TimeDependentDijkstraOneTransactionAsyncTaskImpl(
+                task = new TimeDependentDijkstraOneTransactionAsyncTask(
                         db,
                         gc.getGraphModel(),
                         startNodeTGraphId,
                         endNodeTGraphId,
                         time,
-                        Panel_resultColor.getBackground());
-            }else{
-//            }else if("Dijkstra".equals(algorithms)){
-//                task =  new DijkstraOneTransactionAsyncTask(
-//                    db,
-//                    gc.getGraphModel(),
-//                    startNodeTGraphId,
-//                    endNodeTGraphId,
-//                    time,
-//                    Panel_resultColor.getBackground());
+                        Panel_resultColor.getBackground(),
+                        callback);
 //            }else{
+            }else if("Dijkstra".equals(algorithms)){
+                task =  new DijkstraOneTransactionAsyncTask(
+                        db,
+                        gc.getGraphModel(),
+                        startNodeTGraphId,
+                        endNodeTGraphId,
+                        time,
+                        Panel_resultColor.getBackground(),
+                        callback);
+            }else{
                 task =  new ReachableAreaVisualizationAsyncTask(
                         db,
                         gc.getGraphModel(),
@@ -1270,7 +1290,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 ComboBox_algorithms.addItem("Reachable Area");
 //                ComboBox_algorithms.addItem("Time Dependent A*");
 //                ComboBox_algorithms.addItem("Time Dependent ALT");
-//                ComboBox_algorithms.addItem("Dijkstra");
+                ComboBox_algorithms.addItem("Dijkstra");
                 Slider_startTime.setMinimum(0);
                 Slider_startTime.setMaximum(100);
                 Label_startNode.setText("");
@@ -1376,25 +1396,6 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                 setEnableAllChild(((JComponent) child), enable);
             }
             child.setEnabled(enable);
-        }
-    }
-
-    private class TimeDependentDijkstraOneTransactionAsyncTaskImpl extends TimeDependentDijkstraOneTransactionAsyncTask {
-
-        public TimeDependentDijkstraOneTransactionAsyncTaskImpl(GraphDatabaseService db, GraphModel model, long startId, long endId, int startTime, Color pathColor) {
-            super(db, model, startId, endId, startTime, pathColor);
-        }
-
-        public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
-            int arriveTime = arriveTimes.get(arriveTimes.size()-1);
-            int startTime = arriveTimes.get(0);
-            String result="Path found! Search "+searchNodeCount+" nodes.\n"+
-                    "Departure at: "+ Helper.timeStamp2String(startTime)+"\n"+
-                    "  Arrive  at: "+ Helper.timeStamp2String(arriveTime)+"\n"+
-                    "   Time Cost: "+ this.timePeriod2Str(arriveTime-startTime)+"\n"+
-                    "      length: "+ this.pathLength2Str(pathRealLength);
-            System.out.println(result);
-            notice(result);
         }
     }
     

@@ -10,8 +10,10 @@ import edu.buaa.act.gephi.plugin.utils.GUIHook;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
 import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
 import org.act.neo4j.temporal.demo.utils.Helper;
+import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphModel;
+import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.Direction;
@@ -19,24 +21,25 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
 
 /**
- * Algorithm to find earliest-arrive path in a temporal graph satisfying FIFO property.
- * An implementation of the generalized Dijkstra algorithm. See:
- * Dreyfus, Stuart E. "An Appraisal of Some Shortest-Path Algorithms." Operations Research 17.3(1969):395-412.
+ * Algorithm to find shortest path in a graph based on the 'length' property.
+ * An implementation of the Dijkstra algorithm.
  * Note: This algorithm runs in one transaction and commit NOTHING to database.
  *
  * @author song
  */
-public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
+public class DijkstraOneTransactionAsyncTask extends Traverse{
+    // properties used in this algorithm.
+    private final String G_VALUE = "algorithm-dijkstra-G";
+    private final String PARENT = "algorithm-dijkstra-parent";
+    private final String STATUS = "algorithm-dijkstra-status";
+    private final String TIME_COST = "algorithm-dijkstra-time";
+
+
     private GraphDatabaseService db;
     private GraphModel model;
     private ProgressTicket progress;
@@ -53,7 +56,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     private long searchCount=0;
 
 
-    public TimeDependentDijkstraOneTransactionAsyncTask(
+    public DijkstraOneTransactionAsyncTask(
             GraphDatabaseService db,
             GraphModel model,
             long startId, long endId, int startTime,
@@ -72,7 +75,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
 
     @Override
     public void run() {
-        Thread.currentThread().setName("TGraph.T.D.PathFinding.OneTransaction");
+        Thread.currentThread().setName("TGraph.Dijkstra.PathFinding");
         Progress.start(progress, Integer.MAX_VALUE);
         this.start(db);
         Progress.finish(progress);
@@ -85,17 +88,13 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
 
     }
 
-    public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength){
-
-    }
-
     @Override
     public void runInTransaction() {
         try {
             System.out.println("enter tx");
             Progress.setDisplayName(progress, "initial algorithm...");
             Progress.switchToIndeterminate(progress);
-            initAlgo(start, end, startTime);
+            initAlgo(start, end);
             System.out.println("init done");
             Progress.switchToDeterminate(progress, totalNodeCount);
             Progress.setDisplayName(progress, "searching...");
@@ -132,8 +131,8 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     PriorityQueue<Node> minHeap = new PriorityQueue<Node>(100,new Comparator<Node>() {
         @Override
         public int compare(Node o1, Node o2) {
-            int g1 = (Integer) o1.getProperty("algo-astar-G");
-            int g2 = (Integer) o2.getProperty("algo-astar-G");
+            int g1 = (Integer) o1.getProperty(G_VALUE);
+            int g2 = (Integer) o2.getProperty(G_VALUE);
             if(g1< g2) return -1;
             if(g1==g2) return 0;
             else return 1;
@@ -204,19 +203,33 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
 
     private List<Integer> getArriveTime(final List<Long> path){
         final List<Integer> timeList = new ArrayList<Integer>();
+        int currentTime = this.startTime;
         for (int i=0;i<path.size();i++){
             long nodeId = path.get(i);
             if(!shouldGo) break;
-            int arriveTime = getGvalue(nodeId);
-            timeList.add(arriveTime);
+
             org.gephi.graph.api.Node node = tgraphNode2GephiNode.get(nodeId);
             String label;
-            if(i==0) { //start node
-                label = "Start At " + Helper.timeStamp2String(arriveTime);
-            }else if(i==(path.size()-1)){ //end node
-                label = "Arrive At " + Helper.timeStamp2String(arriveTime) + ", "+timePeriod2Str(arriveTime-timeList.get(0));
-            }else{ // node in between
-                label = Helper.timeStamp2String(arriveTime).substring(11);
+
+            if(i==0)  //start node
+            {
+                timeList.add(currentTime);
+                label = "Start At " + Helper.timeStamp2String(currentTime);
+            }
+            else
+            {
+                Node start = this.db.getNodeById(path.get(i-1));
+                Node end = this.db.getNodeById(nodeId);
+                int period = getTravelTime(start, end, currentTime);
+                currentTime += period;
+                timeList.add(currentTime);
+
+                if(i==(path.size()-1)){ //end node
+                    label = "Arrive At " + Helper.timeStamp2String(currentTime) + ", "+timePeriod2Str(currentTime-timeList.get(0));
+                }else{ // node in between
+                    label = Helper.timeStamp2String(currentTime).substring(11);
+                }
+
             }
             node.setLabel(label);
             System.out.println(label);
@@ -225,13 +238,29 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
         return timeList;
     }
 
+    private int getTravelTime(Node start, Node end, int currentTime)
+    {
+        for(Relationship r : start.getRelationships(Direction.OUTGOING))
+        {
+            if(r.getEndNode().getId()==end.getId()) {
+                if (r.hasProperty("travel-time")) {
+                    Object tObj = r.getDynPropertyPointValue("travel-time", currentTime);
+                    if (tObj != null) {
+                        return (int) (Integer) tObj;
+                    }
+                }
+                return 5;
+            }
+        }
+        throw new RuntimeException("Should not happen: end node of road not found! ("+start.getId()+" -> "+end.getId()+")");
+    }
 
 
     private int getGvalue(long nodeId) {
         return getGvalue(db.getNodeById(nodeId));
     }
     private int getGvalue(Node node) {
-        return (Integer) node.getProperty("algo-astar-G");
+        return (Integer) node.getProperty(G_VALUE);
     }
 
     /**
@@ -240,7 +269,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      * @return parent node id
      */
     private Long getParent(long me) {
-        Object parent = db.getNodeById(me).getProperty("algo-astar-parent");
+        Object parent = db.getNodeById(me).getProperty(PARENT);
 //        System.out.println(me+" "+parent);
         if(parent!=null){
             return db.getNodeById((Long)parent).getId();
@@ -260,29 +289,23 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      */
     private void loopAllNeighborsUpdateGValue(final long nodeId) {
         Node node = db.getNodeById(nodeId);
-        int g = getGvalue(node);
+        int totalLength = getGvalue(node);
         for(Relationship r : node.getRelationships(Direction.OUTGOING)){
             if(!shouldGo) return;
             Node neighbor = r.getOtherNode(node);
-//            System.out.println("good");
-//            System.out.println(r+" "+g);
-//            System.out.println(r.getDynPropertyPointValue("travel-time", g));
-
-//            System.out.println("not so good");
-
-            int travelTime;
+            int length;
             switch (getStatus(neighbor)){
                 case OPEN:
-                    travelTime = getEarliestTravelTime(r, g);
-                    setG(neighbor, travelTime + g);
+                    length = getRoadLength(r);
+                    setG(neighbor, length + totalLength);
                     setStatus(neighbor, Status.CLOSE);
                     setParent(neighbor, node);
                     break;
                 case CLOSE:
-                    travelTime = getEarliestTravelTime(r, g);
-                    int gNeighbor = (Integer) neighbor.getProperty("algo-astar-G");
-                    if(gNeighbor>g+travelTime){
-                        setG(neighbor,g+travelTime);
+                    length = getRoadLength(r);
+                    int gNeighbor = (Integer) neighbor.getProperty(G_VALUE);
+                    if(gNeighbor>totalLength+length){
+                        setG(neighbor,totalLength+length);
                         setParent(neighbor,node);
                     }
                     break;
@@ -292,18 +315,22 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     }
 
     /**
-     * TODO: this should be rewrite with an range query.
-     * Use 'earliest arrive time' rather than simply use 'travel-time' property at departureTime
-     * Because there exist cases that 'a delay before departureTime decrease the time of
-     * arrival'.(eg. wait until road not jammed, See Dreyfus 1969, page 29)
-     * This makes the arrive-time-function non-decreasing,
-     * thus guarantee FIFO property of this temporal network.
-     * This property is the foundational assumption to found
-     * earliest arrive time with this algorithm.
      * @param r road.
-     * @param departureTime time start from r's start node.
-     * @return earliest arrive time to r's end node when departure from r's start node at departureTime.
+     * @return road length
      */
+    private int getRoadLength(Relationship r) {
+        if(r.hasProperty("length")) {
+            Object tObj = r.getProperty("length");
+            if (tObj != null) {
+                return (Integer) tObj;
+            }else{ // no data, filled with 5.
+                throw new RuntimeException("no length data of road "+r.getId());
+            }
+        }else{
+            throw new RuntimeException("road "+r.getId()+"do no contain a property called length.");
+        }
+    }
+
     private int getEarliestTravelTime(Relationship r, int departureTime) {
         int minArriveTime = Integer.MAX_VALUE;
         for(int curT = departureTime; curT<minArriveTime; curT++){
@@ -344,9 +371,8 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      * 3. set min G value to be t0, min point to source node
      * @param from source node
      * @param to target/destination node
-     * @param t0 start from source node at time t0
      */
-    private void initAlgo(final long from, long to, final int t0) {
+    private void initAlgo(final long from, long to) {
         for(org.gephi.graph.api.Node node:model.getGraph().getNodes()){
             if(!shouldGo) return;
             long tgraphNodeId = (Long) node.getAttribute("tgraph_id");
@@ -366,16 +392,16 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
         }, false);
         totalNodeCount = (int) traversal.getVisitedNodeCount();
         setStatus(startNode, Status.CLOSE);
-        setG(startNode, t0);
+        setG(startNode, 0);
     }
 
     private void setG(Node node, int value) {
-        node.setProperty("algo-astar-G", value);
+        node.setProperty(G_VALUE, value);
     }
 
     private void setParent(Node node, Node parent) {
 //        pathColor.
-        node.setProperty("algo-astar-parent",parent.getId());
+        node.setProperty(PARENT,parent.getId());
     }
 
     /**
@@ -383,7 +409,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      * will add the node to min G Value heap.
      */
     private void setStatus(Node node, Status status){
-        node.setProperty("algo-astar-status",status.value());
+        node.setProperty(STATUS,status.value());
         if (status == Status.CLOSE) {
 //            tgraphNode2GephiNode.get(node.getId()).setColor(Color.MAGENTA);
             minHeap.add(node);
@@ -394,15 +420,13 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     }
 
     private Status getStatus(final Node node){
-        Object status = node.getProperty("algo-astar-status");
+        Object status = node.getProperty(STATUS);
         if (status != null) {
             return Status.valueOf((Integer) status);
         } else {
             throw new RuntimeException("node property algo-astar-status null");
         }
     }
-
-
 
 
     public enum Status{
