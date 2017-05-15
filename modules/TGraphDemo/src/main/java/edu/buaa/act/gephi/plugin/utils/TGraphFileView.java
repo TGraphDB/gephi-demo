@@ -32,7 +32,7 @@ public class TGraphFileView extends FileView {
     @Override
     public Icon getIcon(File file) {
         if(accept(file)) {
-            return ImageUtilities.loadImageIcon("/Neo4j-logo.png", false);
+            return ImageUtilities.loadImageIcon("Neo4j-logo.png", false);
         }else {
             return null;
         }
@@ -44,17 +44,18 @@ public class TGraphFileView extends FileView {
     }
 
     private boolean accept(File directory) {
-        if (!directory.isDirectory()) {
-            return false;
-        }
-
-        int existingRequiredFiles = 0;
-        for (File file : directory.listFiles()) {
-            if (TGraph_required_files.contains(file.getName())) {
-                existingRequiredFiles++;
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if(files!=null){
+                int existingRequiredFiles = 0;
+                for (File file : files) {
+                    if (TGraph_required_files.contains(file.getName())) {
+                        existingRequiredFiles++;
+                    }
+                }
+                return existingRequiredFiles == TGraph_required_files.size();
             }
         }
-
-        return existingRequiredFiles == TGraph_required_files.size();
+        return false;
     }
 }
