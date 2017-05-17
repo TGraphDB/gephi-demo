@@ -42,7 +42,7 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
     private int maxTravelTime = 0;
     private long searchCount=0;
     private LinearGradientInt colors;
-    private int timeOutSeconds = 2000;
+    private int timeOutSeconds = 2400;
 
 
     public ReachableAreaVisualizationAsyncTask(
