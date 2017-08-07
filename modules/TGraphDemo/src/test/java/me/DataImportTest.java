@@ -142,7 +142,7 @@ public class DataImportTest {
             @Override
             public void runInTransaction() {
                 Relationship r = db.getRelationshipById(46388);
-                System.out.println(r.getDynPropertyPointValue("travel-time", 1320400594));
+                System.out.println(r.getTemporalProperty("travel-time", 1320400594));
             }
         }.start(db);
         db.shutdown();

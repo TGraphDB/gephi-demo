@@ -136,17 +136,17 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                                 if (r != null) {
                                     int dCount = dataCount[((int) r.getId())];
                                     if(dCount==0){
-                                        r.createDynProperty("travel-time", time, 4, temporalStatus.getTravelTime());
-                                        r.createDynProperty("full-status", time, 4, temporalStatus.getFullStatus());
-                                        r.createDynProperty("vehicle-count", time, 4, temporalStatus.getVehicleCount());
-                                        r.createDynProperty("segment-count", time, 4, temporalStatus.getSegmentCount());
-                                        r.createDynProperty("temporal-point", 1, 4, time); // count from 1.
+                                        r.createTemporalProperty("travel-time", time, 4, temporalStatus.getTravelTime());
+                                        r.createTemporalProperty("full-status", time, 4, temporalStatus.getFullStatus());
+                                        r.createTemporalProperty("vehicle-count", time, 4, temporalStatus.getVehicleCount());
+                                        r.createTemporalProperty("segment-count", time, 4, temporalStatus.getSegmentCount());
+                                        r.createTemporalProperty("temporal-point", 1, 4, time); // count from 1.
                                     }else {
-                                        r.setDynProperty("travel-time", time, temporalStatus.getTravelTime());
-                                        r.setDynProperty("full-status", time, temporalStatus.getFullStatus());
-                                        r.setDynProperty("vehicle-count", time, temporalStatus.getVehicleCount());
-                                        r.setDynProperty("segment-count", time, temporalStatus.getSegmentCount());
-                                        r.setDynProperty("temporal-point", dCount+1, time);
+                                        r.setTemporalProperty("travel-time", time, temporalStatus.getTravelTime());
+                                        r.setTemporalProperty("full-status", time, temporalStatus.getFullStatus());
+                                        r.setTemporalProperty("vehicle-count", time, temporalStatus.getVehicleCount());
+                                        r.setTemporalProperty("segment-count", time, temporalStatus.getSegmentCount());
+                                        r.setTemporalProperty("temporal-point", dCount+1, time);
                                     }
                                     updateRoadMinMaxTime(r.getId(), time);
                                     result.inc("time-point-data-count");

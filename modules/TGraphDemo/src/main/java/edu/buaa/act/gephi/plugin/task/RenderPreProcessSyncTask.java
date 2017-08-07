@@ -4,9 +4,6 @@ import edu.buaa.act.gephi.plugin.exception.TaskCancelException;
 import edu.buaa.act.gephi.plugin.preview.HeatMapRenderer;
 import edu.buaa.act.gephi.plugin.utils.Clock;
 import edu.buaa.act.gephi.plugin.utils.LinearGradientInt;
-import org.act.dynproperty.impl.RangeQueryCallBack;
-import org.act.dynproperty.util.DynPropertyValueConvertor;
-import org.act.dynproperty.util.Slice;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.gephi.appearance.plugin.RankingElementColorTransformer;
 import org.gephi.graph.api.Edge;
@@ -17,6 +14,7 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.TemporalPropertyRangeQuery;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
@@ -158,30 +156,31 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
 //        return (Integer) r.getProperty("length");
         final int[] result = new int[]{0};
         if(r.hasProperty("full-status")){
-            Integer tmp = (Integer) r.getDynPropertyRangeValue("full-status", startTime, startTime + winSize, new RangeQueryCallBack() {
+            r.getTemporalProperties("full-status", startTime, startTime + winSize, new TemporalPropertyRangeQuery() {
                 @Override
-                public void setValueType(String valueType) {}
-                @Override
-                public void onCall(Slice value) {
-//                value.getInt(0);
-                    byte[] statusByte = value.slice(0,4).getBytes();
-                    int status = (Integer) DynPropertyValueConvertor.revers("Integer", statusByte);
-//                System.out.print(status+",");
-                    dataCount++;
-                    switch (status) {
-                        case 2:
-                            result[0]++;
-                            break;
-                        case 3:
-                            result[0] += 3;
-                            break;
-                    }
+                public Object onReturn()
+                {
+                    return null;
                 }
+
                 @Override
-                public Slice onReturn() {
-                    Slice value = new Slice(4);
-                    value.setInt(0, result[0]);
-                    return value;
+                public boolean onTimePoint(int i, Object o)
+                {
+                    Integer status = (Integer) o;
+                    if(status!=null)
+                    {
+                        dataCount++;
+                        switch (status)
+                        {
+                            case 2:
+                                result[0]++;
+                                break;
+                            case 3:
+                                result[0] += 3;
+                                break;
+                        }
+                    }
+                    return true;
                 }
             });
 //        System.out.println(tmp+" "+result[0]);

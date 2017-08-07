@@ -246,7 +246,7 @@ public class TimeDependentDijkstraAsyncTask implements LongTask, Runnable{
                     if(!shouldGo) return;
                     Node neighbor = r.getOtherNode(node);
 //                    logger.info(r.getDynPropertyPointValue("travel-time", g));
-                    Object travelTimeObj = r.getDynPropertyPointValue("travel-time", g);
+                    Object travelTimeObj = r.getTemporalProperty("travel-time", g);
                     int travelTime;
                     if(travelTimeObj!=null) {
                         travelTime = (Integer) travelTimeObj;

@@ -244,7 +244,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
         {
             if(r.getEndNode().getId()==end.getId()) {
                 if (r.hasProperty("travel-time")) {
-                    Object tObj = r.getDynPropertyPointValue("travel-time", currentTime);
+                    Object tObj = r.getTemporalProperty("travel-time", currentTime);
                     if (tObj != null) {
                         return (int) (Integer) tObj;
                     }
@@ -335,7 +335,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
         int minArriveTime = Integer.MAX_VALUE;
         for(int curT = departureTime; curT<minArriveTime; curT++){
             if(r.hasProperty("travel-time")) {
-                Object tObj = r.getDynPropertyPointValue("travel-time", curT);
+                Object tObj = r.getTemporalProperty("travel-time", curT);
                 if (tObj != null) {
                     int period = (Integer) tObj;
                     if (curT + period < minArriveTime) {

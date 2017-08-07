@@ -39,7 +39,7 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
                 Relationship r = db.getRelationshipById((Long) tgraphId);
                 if(r!=null){
                     if(r.hasProperty("full-status")) {
-                        Object fullStatus = r.getDynPropertyPointValue("full-status", time);
+                        Object fullStatus = r.getTemporalProperty("full-status", time);
                         if (fullStatus != null) {
 //                        System.out.println("has status.");
                             int status = (Integer) fullStatus;

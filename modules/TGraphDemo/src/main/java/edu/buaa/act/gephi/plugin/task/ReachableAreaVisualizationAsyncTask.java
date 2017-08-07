@@ -225,7 +225,7 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
         int minArriveTime = Integer.MAX_VALUE;
         for(int curT = departureTime; curT<minArriveTime; curT++){
             if(r.hasProperty("travel-time")) {
-                Object tObj = r.getDynPropertyPointValue("travel-time", curT);
+                Object tObj = r.getTemporalProperty("travel-time", curT);
                 if (tObj != null) {
                     int period = (Integer) tObj;
                     if (curT + period < minArriveTime) {
