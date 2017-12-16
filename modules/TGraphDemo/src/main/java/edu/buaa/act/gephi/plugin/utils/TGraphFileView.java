@@ -14,7 +14,7 @@ import org.openide.util.ImageUtilities;
  */
 public class TGraphFileView extends FileView {
 
-    String[] requiredFileNames = {"neostore", "neostore.id",
+    Set<String> neo4jRequireFileNames = new HashSet<String>(Arrays.asList("neostore", "neostore.id",
             "neostore.nodestore.db", "neostore.nodestore.db.id",
             "neostore.propertystore.db", "neostore.propertystore.db.id",
             "neostore.propertystore.db.arrays", "neostore.propertystore.db.arrays.id",
@@ -23,16 +23,22 @@ public class TGraphFileView extends FileView {
             "neostore.propertystore.db.strings", "neostore.propertystore.db.strings.id",
             "neostore.relationshipstore.db", "neostore.relationshipstore.db.id",
             "neostore.relationshiptypestore.db", "neostore.relationshiptypestore.db.id",
-            "neostore.relationshiptypestore.db.names", "neostore.relationshiptypestore.db.names.id",
-            "dynNode","dynRelationship"
-    };
+            "neostore.relationshiptypestore.db.names", "neostore.relationshiptypestore.db.names.id"
+    ));
 
-    Set TGraph_required_files = new HashSet<String>(Arrays.asList(requiredFileNames));
+    Set<String> oldTGraphDirNames = new HashSet<String>(Arrays.asList("dynNode","dynRelationship"));
+    Set<String> newTGraphDirNames = new HashSet<String>(Arrays.asList("temporal.node.properties","temporal.relationship.properties"));
+
+    boolean isOldTGraph=true;
 
     @Override
     public Icon getIcon(File file) {
         if(accept(file)) {
-            return ImageUtilities.loadImageIcon("Neo4j-logo.png", false);
+            if(isOldTGraph) {
+                return ImageUtilities.loadImageIcon("Neo4j-logo.png", false);
+            }else{
+                return ImageUtilities.loadImageIcon("neo4j-logo-2015.png", false);
+            }
         }else {
             return null;
         }
@@ -48,12 +54,21 @@ public class TGraphFileView extends FileView {
             File[] files = directory.listFiles();
             if(files!=null){
                 int existingRequiredFiles = 0;
+                int oldCount = 0;
+                int newCount = 0;
                 for (File file : files) {
-                    if (TGraph_required_files.contains(file.getName())) {
+                    if (neo4jRequireFileNames.contains(file.getName())) {
                         existingRequiredFiles++;
+                    }else if (oldTGraphDirNames.contains(file.getName())){
+                        oldCount++;
+                        isOldTGraph=true;
+                    }else if(newTGraphDirNames.contains(file.getName())){
+                        newCount++;
+                        isOldTGraph=false;
                     }
                 }
-                return existingRequiredFiles == TGraph_required_files.size();
+                return existingRequiredFiles == neo4jRequireFileNames.size() &&
+                        (oldCount==2 || newCount==2);
             }
         }
         return false;
