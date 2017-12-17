@@ -1,9 +1,7 @@
 package edu.buaa.act.gephi.plugin.task;
 
 import edu.buaa.act.gephi.plugin.utils.Result;
-import org.act.neo4j.temporal.demo.utils.CrossFactory;
 import org.act.neo4j.temporal.demo.utils.Helper;
-import org.act.neo4j.temporal.demo.utils.RoadNetworkStorage;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
 import org.act.neo4j.temporal.demo.vo.Cross;
 import org.act.neo4j.temporal.demo.vo.RelType;
@@ -70,7 +68,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
         Progress.start(progress, roadList.size());
         Progress.setDisplayName(progress, "building network structure...");
         for(RoadChain roadChain: roadList){
-            RoadNetworkStorage.updateNeighbors(roadChain);
+            roadChain.updateNeighbors();
             Progress.progress(progress);
         }
         Progress.switchToIndeterminate(progress);
@@ -86,7 +84,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
         importRoadNetwork(result);
         Progress.setDisplayName(progress, "importing traffic data into database...");
         Progress.switchToDeterminate(progress, dataFileList.size());
-        //importTrafficData(result);
+        importTrafficData(result);
         Progress.setDisplayName(progress, "finishing...");
         Progress.switchToDeterminate(progress, roadList.size());
         setStatisticData(result);
@@ -132,9 +130,9 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                                 return;
                             }
                             TemporalStatus temporalStatus = new TemporalStatus(line);
-                            RoadChain roadChain = RoadNetworkStorage.getDefault().get(temporalStatus.gridId, temporalStatus.chainId);
+                            RoadChain roadChain = RoadChain.get(temporalStatus.gridId, temporalStatus.chainId);
                             if (roadChain.getInNum() > 0 || roadChain.getOutNum() > 0) {
-                                Relationship r = db.getRelationshipById(roadChain.getDbRelId());
+                                Relationship r = roadChain.getRelationship(db);
                                 if (r != null) {
                                     int dCount = dataCount[((int) r.getId())];
                                     if(dCount==0){
@@ -190,7 +188,6 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
             new TransactionWrapper<Map<String,Integer>>(){
                 @Override
                 public void runInTransaction() {
-                    CrossFactory crossFactory = new CrossFactory();
                     for (int i = tmp[0]; i <= tmp[1]; i++) {
                         if(!shouldGo) return;
                         RoadChain roadChain = roadList.get(i);
@@ -205,26 +202,26 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                                 result.inc("emptyOutCount");
                             }
                             result.inc("normalRoadCount");
-                            Cross inCross = crossFactory.getStartCross(roadChain);
-                            Cross outCross = crossFactory.getEndCross(roadChain);
+                            Cross inCross = Cross.getStartCross(roadChain);
+                            Cross outCross = Cross.getEndCross(roadChain);
                             Node inNode, outNode;
-                            if (inCross.getDbNodeId() == -1) {
+                            if (inCross.getNode(db) == null) {
                                 inNode = db.createNode();
-                                inCross.setDbNodeId(inNode.getId());
+                                inCross.setNode(inNode);
                                 inNode.setProperty("cross-id", inCross.id);
                             } else {
-                                inNode = db.getNodeById(inCross.getDbNodeId());
+                                inNode = inCross.getNode(db);
                             }
-                            if (outCross.getDbNodeId() == -1) {
+                            if (outCross.getNode(db) == null) {
                                 outNode = db.createNode();
-                                outCross.setDbNodeId(outNode.getId());
+                                outCross.setNode(outNode);
                                 outNode.setProperty("cross-id", outCross.id);
                             } else {
-                                outNode = db.getNodeById(outCross.getDbNodeId());
+                                outNode = outCross.getNode(db);
                             }
 
                             Relationship r = inNode.createRelationshipTo(outNode, RelType.ROAD_TO);
-                            r.setProperty("uid", roadChain.getId());
+                            r.setProperty("uid", roadChain.getUid());
                             r.setProperty("grid-id", roadChain.getGridId());
                             r.setProperty("chain-id", roadChain.getChainId());
                             r.setProperty("type", roadChain.getType());
@@ -232,12 +229,12 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                             r.setProperty("angle", roadChain.getAngle());
                             r.setProperty("in-count", roadChain.getInNum());
                             r.setProperty("out-count", roadChain.getOutNum());
-                            r.setProperty("in-roads", RoadNetworkStorage.getDefault().briefInChain(roadChain));
+                            r.setProperty("in-roads", roadChain.briefInChain());
                             r.setProperty("out-roads", roadChain.briefOutChain());
                             r.setProperty("data-count", 0);
                             r.setProperty("min-time", Integer.MAX_VALUE);
                             r.setProperty("max-time", 0);
-                            roadChain.setDbRelId(r.getId());
+                            roadChain.setRelationship(r);
                             Progress.progress(progress);
                             Progress.progress(progress,result.get("normalRoadCount")+" road imported.");
                         }

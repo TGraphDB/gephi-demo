@@ -56,10 +56,6 @@ public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<Strin
             }
             relationshipCounts++;
         }
-        if(minTimeOfNetwork>maxTimeOfNetwork){ // without temporal data. road network only.
-            maxTimeOfNetwork = (int) (System.currentTimeMillis()/1000);
-            minTimeOfNetwork = maxTimeOfNetwork - 3600;
-        }
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("node-count", nodeCounts);
         result.put("edge-count", relationshipCounts);
