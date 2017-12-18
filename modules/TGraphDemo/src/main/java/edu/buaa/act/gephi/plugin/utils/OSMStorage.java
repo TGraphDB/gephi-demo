@@ -31,11 +31,61 @@ public class OSMStorage {
         secondPhase();
     }
 
-    public OSMNode getNodeById(long startNodeOSMId) {
-        return null;
+
+    public void loadFile(double minLat, double maxLat, double minLon, double maxLon) {
+        Map<Long, OSMNode> nodeMap = new HashMap<Long, OSMNode>();
+        Map<String, OSMEdge> edgeMap = new HashMap<String, OSMEdge>();
+        firstPhase(nodeMap, edgeMap);
+        secondPhase(minLat, maxLat, minLon, maxLon, nodeMap, edgeMap);
+    }
+
+    public OSMNode getNodeById(long osmId) {
+        return nodeMap.get(osmId);
     }
 
     private void firstPhase() {
+        OSMInputFile in = null;
+        try {
+            in = new OSMInputFile(osmFile).setWorkerThreads(1).open();
+            ReaderElement item;
+            while ((item = in.getNext()) != null) {
+                if (item.isType(ReaderElement.WAY)) {
+                    final ReaderWay way = (ReaderWay) item;
+                    boolean valid = filterWay(way);
+                    if (valid) {
+                        int wayCount = 0;
+                        TLongList wayNodes = way.getNodes();
+                        long wayId = way.getId();
+                        String wayName = way.getTag("name", "");
+                        for (int i = 0; i < wayNodes.size(); i++) {
+                            long osmNodeId = wayNodes.get(i);
+                            if (nodeMap.containsKey(osmNodeId)) {
+                                nodeMap.get(osmNodeId).setTower(true);
+                            } else {
+                                nodeMap.put(osmNodeId, new OSMNode(osmNodeId));
+                            }
+
+                            if (i > 0) {
+                                long preNodeId = wayNodes.get(i - 1);
+                                OSMEdge edge = new OSMEdge(preNodeId, osmNodeId, wayId, wayName);
+                                edge.setId(wayId + ":" + wayCount);
+                                edgeMap.put(edge.getId(), edge);
+                                wayCount++;
+                            }
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Problem while parsing file", ex);
+        } finally {
+            Helper.close(in);
+        }
+    }
+
+    private void firstPhase(Map<Long, OSMNode> nodeMap,
+                            Map<String, OSMEdge> edgeMap) {
         OSMInputFile in = null;
 
 
@@ -75,6 +125,66 @@ public class OSMStorage {
             throw new RuntimeException("Problem while parsing file", ex);
         } finally {
             Helper.close(in);
+        }
+    }
+
+    private void secondPhase(double minLat, double maxLat, double minLon, double maxLon,
+                             Map<Long, OSMNode> nodeMap,
+                             Map<String, OSMEdge> edgeMap) {
+        OSMInputFile in = null;
+        try {
+            in = new OSMInputFile(osmFile).setWorkerThreads(1).open();
+            ReaderElement item;
+            while ((item = in.getNext()) != null) {
+                if (item.isType(ReaderElement.NODE)) {
+                    OSMNode n = nodeMap.get(item.getId());
+                    if (n != null) {
+                        ReaderNode node = (ReaderNode) item;
+                        if(minLat<node.getLat() && node.getLat()<maxLat &&
+                                minLon<node.getLon() && node.getLon()<maxLon){
+                            n.setLatitude(node.getLat());
+                            n.setLongitude(node.getLon());
+                            n.setName(node.getTag("name", ""));
+                            this.nodeMap.put(item.getId(), n);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Problem while parsing file", ex);
+        } finally {
+            Helper.close(in);
+        }
+
+        DistanceCalc distCalc = Helper.DIST_EARTH;
+
+        for (OSMEdge e : edgeMap.values()) {
+            OSMNode start = this.nodeMap.get(e.getStartId());
+            OSMNode end = this.nodeMap.get(e.getEndId());
+            if (start != null && end != null) {
+                this.edgeMap.put(e.getId(), e);
+                start.out.add(e.getId());
+                end.in.add(e.getId());
+                e.setStart(start);
+                e.setEnd(end);
+
+                double sLat = start.getLatitude();
+                double sLon = start.getLongitude();
+                double eLat = end.getLatitude();
+                double eLon = end.getLongitude();
+                if (!Double.isNaN(sLat) && !Double.isNaN(sLon) && !Double.isNaN(eLat) && !Double.isNaN(eLon)) {
+                    double len = distCalc.calcDist(sLat, sLon, eLat, eLon);
+                    if (len < 0) throw new RuntimeException("SNH: len<0 at edge index " + e.getWayId());
+                    e.setLength(len);
+
+                    double theta = Math.atan2(eLon - sLon, eLat - sLat);
+                    double angle = 180 * theta / Math.PI;
+                    if (angle < 0) angle += 360;
+                    e.setAngle(angle);
+                } else {
+                    throw new RuntimeException("lat or lon is NaN!");
+                }
+            }
         }
     }
 
@@ -143,6 +253,7 @@ public class OSMStorage {
 //            log.info("get {} nodes ({} tower) and {} edges ({} ways).", nodeMap.size(), towerCount,  edgeList.size(), wayCount);
     }
 
+    private static Set<String> ferries = new HashSet<String>(Arrays.asList("shuttle_train","ferry"));
     private static boolean filterWay(ReaderWay way) {
         // ignore broken geometry
         if (way.getNodes().size() < 2)
@@ -154,6 +265,14 @@ public class OSMStorage {
 
         String highwayValue = way.getTag("highway");
         if (highwayValue == null) {
+            if (way.hasTag("route", ferries)) {
+                String motorcarTag = way.getTag("motorcar");
+                if (motorcarTag == null)
+                    motorcarTag = way.getTag("motor_vehicle");
+
+                if (motorcarTag == null && !way.hasTag("foot") && !way.hasTag("bicycle") || "yes".equals(motorcarTag))
+                    return true;
+            }
             return false;
         }
 
@@ -171,15 +290,15 @@ public class OSMStorage {
         return true;
     }
 
-    public long nearestNodeId(double startLat, double startLon) {
+    public long nearestNodeId(double startLat, double startLon, double startLenThreshold) {
         DistanceCalc distCalc = Helper.DIST_EARTH;
         LinkedList<Double> nearest10dis = new LinkedList<Double>();
         LinkedList<OSMNode> nearest10nodes = new LinkedList<OSMNode>();
-        nearest10dis.add(1000d);
+        nearest10dis.add(startLenThreshold);
         nearest10nodes.add(null);
         for(OSMNode n: nodeMap.values()){
             double dis = distCalc.calcDist(n.latitude, n.longitude,  startLat, startLon);
-            double curMin = nearest10dis.peek();
+            double curMin = nearest10dis.peekLast();
             if(dis<curMin){
                 nearest10dis.add(dis);
                 nearest10nodes.add(n);
@@ -189,7 +308,7 @@ public class OSMStorage {
                 nearest10nodes.poll();
             }
         }
-        for(int i=0;i<10;i++){
+        for(int i=0;i<nearest10dis.size();i++){
             System.out.println("DIS:"+nearest10dis.get(i)+" "+nearest10nodes.get(i));
         }
         return nearest10nodes.peekLast().getOsmId();
@@ -198,6 +317,15 @@ public class OSMStorage {
     public OSMEdge getEdgeById(String edgeIdP) {
         return this.edgeMap.get(edgeIdP);
     }
+
+    public Collection<OSMNode> allNodes() {
+        return nodeMap.values();
+    }
+
+    public Collection<OSMEdge> allEdges() {
+        return edgeMap.values();
+    }
+
 
 
     public static class OSMNode
@@ -366,6 +494,10 @@ public class OSMStorage {
 
         public double getAngle() {
             return angle;
+        }
+
+        public double getLength() {
+            return length;
         }
     }
 }
