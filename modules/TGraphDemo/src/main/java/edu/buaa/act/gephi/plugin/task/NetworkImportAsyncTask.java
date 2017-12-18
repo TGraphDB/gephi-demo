@@ -74,10 +74,10 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
         addColumnIfNotExist(edgeTable,"road_in",Integer.class);
         addColumnIfNotExist(edgeTable,"road_out",Integer.class);
         addColumnIfNotExist(edgeTable,"road_type",Integer.class);
-        addColumnIfNotExist(edgeTable, "road_length", Integer.class);
-        addColumnIfNotExist(edgeTable, "real_length", Integer.class);
-        addColumnIfNotExist(edgeTable, "road_angle", Integer.class);
-        addColumnIfNotExist(edgeTable, "real_angle", Integer.class);
+        addColumnIfNotExist(edgeTable, "road_length", Double.class);
+        addColumnIfNotExist(edgeTable, "real_length", Double.class);
+        addColumnIfNotExist(edgeTable, "road_angle", Double.class);
+        addColumnIfNotExist(edgeTable, "real_angle", Double.class);
         addColumnIfNotExist(edgeTable,"tgraph_id", Long.class);
         addColumnIfNotExist(edgeTable,"t_max", Integer.class);
         addColumnIfNotExist(edgeTable,"t_min", Integer.class);
@@ -289,8 +289,8 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
             edge.setAttribute("road_in",r.getProperty("in-count"));
             edge.setAttribute("road_out",r.getProperty("out-count"));
             edge.setAttribute("road_type",r.getProperty("type"));
-            edge.setAttribute("road_length",r.getProperty("length"));
-            edge.setAttribute("road_angle",r.getProperty("angle"));
+            edge.setAttribute("road_length",((Integer) r.getProperty("length"))+0d);
+            edge.setAttribute("road_angle", ((Integer) r.getProperty("angle"))+0d);
             edge.setAttribute("tgraph_id",r.getId());
             if(r.hasProperty("max-time")) {
                  edge.setAttribute("t_max",r.getProperty("max-time"));
