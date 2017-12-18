@@ -13,7 +13,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import java.io.File;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,9 +71,20 @@ public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<Strin
         Progress.switchToIndeterminate(progress);
         Progress.setDisplayName(progress, "TGraph: Connecting to database...");
         Progress.progress(progress, "DB Path: "+dbPath);
+//        File configFile = new File("/tmp/TGraphDemo.neo4j.conf");
+//        if(!configFile.exists()){
+//            try {
+//                configFile.createNewFile();
+//                Writer w = new BufferedWriter(new FileWriter(configFile));
+//                w.write("allow_store_upgrade=true");
+//                w.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
         db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder(dbPath)
-                .loadPropertiesFromFile("")
+                .newEmbeddedDatabaseBuilder(dbPath).setConfig("allow_store_upgrade", "true")
+//                .loadPropertiesFromFile("/tmp/TGraphDemo.neo4j.conf")
                 .newGraphDatabase();
         Progress.setDisplayName(progress, "TGraph: Getting information from database...");
         this.start(db);
