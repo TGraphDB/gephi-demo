@@ -1,11 +1,7 @@
 package edu.buaa.act.gephi.plugin.task;
 
-import com.graphhopper.reader.ReaderElement;
-import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.reader.osm.OSMInputFile;
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
 import edu.buaa.act.gephi.plugin.utils.OSMStorage;
-import gnu.trove.list.TLongList;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
@@ -27,10 +23,10 @@ public abstract class LoadOSMDataAsyncTask extends GUIHook<OSMStorage> implement
 
     @Override
     public void run() {
-        Progress.switchToIndeterminate(this.progress);
         Progress.start(this.progress);
+        Progress.switchToIndeterminate(this.progress);
         storage = new OSMStorage(this.file);
-        storage.loadFile();
+        storage.loadFile(39.5739, 40.3403, 115.9113, 116.8945);
         Progress.finish(this.progress);
         this.handler(this.storage);
     }

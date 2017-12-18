@@ -2,6 +2,7 @@ package edu.buaa.act.gephi.plugin.tool;
 
 import edu.buaa.act.gephi.plugin.task.CorrectNetworkAsyncTask;
 import edu.buaa.act.gephi.plugin.task.LoadOSMDataAsyncTask;
+import edu.buaa.act.gephi.plugin.task.OSMVisualizeAsyncTask;
 import edu.buaa.act.gephi.plugin.utils.OSMStorage;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.Node;
@@ -15,6 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by song on 17-12-17.
@@ -34,23 +36,14 @@ public class CorrectNetworkTool implements Tool {
     CorrectNetToolUI ui;
     Node node;
 
-    byte status = 0;
-    byte STATUS_INIT=0;
-    byte STATUS_DATA_LOAD=1;
-    byte STATUS_READY=2;
-    byte STATUS_BUSY=3;
+    AtomicBoolean isRunning = new AtomicBoolean(false);
 
     OSMStorage osmStorage;
 
     @Override
-    public void select() {
-        //
-    }
-
+    public void select() {}
     @Override
-    public void unselect() {
-        //
-    }
+    public void unselect() {}
 
     @Override
     public ToolEventListener[] getListeners() {
@@ -58,16 +51,15 @@ public class CorrectNetworkTool implements Tool {
                 new NodeClickEventListener() {
                     public void clickNodes(Node[] nodes) {
                         int last = nodes.length-1;
-                        if(status>=STATUS_DATA_LOAD && status!=STATUS_BUSY){
-                            node = nodes[last];
-                            node.setColor(Color.red);
+                        if(node!=null) node.setColor(Color.BLACK);
+                        node = nodes[last];
+                        node.setColor(Color.red);
 //                        start.setZ(20f);
 //                        start.setSize(4f);
-                            ui.note.setText("Start node chosen.");
-                            System.out.println(nodes.length+" nodes. "+status);
-                            for(Node node: nodes){
-                                System.out.println("x"+node.x()+" y"+node.y()+" z"+node.z());
-                            }
+                        ui.note.setText("node chosen");
+                        System.out.println(nodes.length+" nodes. ");
+                        for(Node node: nodes){
+                            System.out.println("x"+node.x()+" y"+node.y()+" z"+node.z());
                         }
                     }
                 }
@@ -101,11 +93,17 @@ public class CorrectNetworkTool implements Tool {
         @Override
         public JPanel getPropertiesBar(Tool tool) {
             JPanel panel = new JPanel();
-            note = new JLabel("STEP1: select OSM file");
+            note = new JLabel("Correct Road with OSM data (hover for more tips)");
             selectOSMFileBtn = new JButton("Browse.");
-            latitudeTxt = new JTextField("latitude");
-            longitudeTxt = new JTextField("longitude");
+            latitudeTxt = new JTextField("latitude", 20);
+            longitudeTxt = new JTextField("longitude", 20);
             startCorrectBtn = new JButton("Correct");
+
+            selectOSMFileBtn.setToolTipText(
+                    "1. browse osm data.\n" +
+                            "2. choose a node from graph.\n" +
+                            "3. set latitude and longitude.\n" +
+                            "4. press the 'Correct' button");
 
             selectOSMFileBtn.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -118,7 +116,6 @@ public class CorrectNetworkTool implements Tool {
                     Button_beginCorrectMouseClicked(evt);
                 }
             });
-
 
             panel.add(note);
             panel.add(selectOSMFileBtn);
@@ -145,35 +142,46 @@ public class CorrectNetworkTool implements Tool {
         }
 
         private void Button_chooseOSMFileMouseClicked(MouseEvent evt) {
-            byte preStatus = status;
-            status = STATUS_BUSY;
+
             JFileChooser fc = new JFileChooser();
 //        fc.setFileFilter(new TGraphDatabaseFolderFilter());
             fc.setDialogTitle("choose OSM file (e.g. beijing_around.pbf)");
             fc.setDialogType(JFileChooser.OPEN_DIALOG);
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File osmFile = fc.getSelectedFile();
+                final File osmFile = fc.getSelectedFile();
                 if (osmFile.exists()) {
                     LoadOSMDataAsyncTask task = new LoadOSMDataAsyncTask(osmFile){
                         @Override
                         public void guiHandler(final OSMStorage value) {
                             osmStorage = value;
-                            status = STATUS_READY;
+                            ui.note.setText("OSM File chosen");
+                            if(latitudeTxt.getText().equals("vis") && longitudeTxt.getText().equals("osm")){
+                                GraphController gc = Lookup.getDefault().lookup(GraphController.class);
+                                OSMVisualizeAsyncTask t = new OSMVisualizeAsyncTask(gc.getGraphModel(), osmStorage){
+                                    @Override
+                                    public void guiHandler(Object value) {
+                                        isRunning.set(false);
+                                        ui.note.setText("visualization finish.");
+                                    }
+                                };
+                                new LongTaskExecutor(true).execute(t, t, "visualizing...", null);
+                            }else{
+                                isRunning.set(false);
+                            }
                         }
                     };
+                    isRunning.set(true);
                     new LongTaskExecutor(true).execute(task, task, "reading...", null);
+
                 }else{
                     throw new RuntimeException("TGraph: file not exist");
                 }
-            }else{
-                status = preStatus;
             }
         }
 
 
         private void Button_beginCorrectMouseClicked(MouseEvent evt) {
-            if(status>=STATUS_READY && status!=STATUS_BUSY){
-                status = STATUS_BUSY;
+            if(!isRunning.get() && osmStorage!=null && node!=null){
                 double lat = Double.parseDouble(latitudeTxt.getText());
                 double lon = Double.parseDouble(longitudeTxt.getText());
                 GraphController gc = Lookup.getDefault().lookup(GraphController.class);
@@ -184,10 +192,18 @@ public class CorrectNetworkTool implements Tool {
                         lat, lon ){
                     @Override
                     public void guiHandler(Object value) {
-                        status = STATUS_READY;
+                        isRunning.set(false);
+                        ui.note.setText("correct finish.");
                     }
                 };
+                isRunning.set(true);
                 new LongTaskExecutor(true).execute(task, task, "reading...", null);
+            }else if(isRunning.get()){
+                ui.note.setText("busy running, please wait");
+            }else if(osmStorage==null){
+                ui.note.setText("please browse osm data");
+            }else{
+                ui.note.setText("please select node from graph");
             }
         }
 

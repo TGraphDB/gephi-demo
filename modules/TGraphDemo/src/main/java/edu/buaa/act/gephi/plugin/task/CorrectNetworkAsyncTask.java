@@ -1,5 +1,6 @@
 package edu.buaa.act.gephi.plugin.task;
 
+import com.graphhopper.util.Helper;
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
 import edu.buaa.act.gephi.plugin.utils.OSMStorage;
 import edu.buaa.act.gephi.plugin.utils.OSMStorage.OSMEdge;
@@ -39,14 +40,15 @@ public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask
 
     @Override
     public void run() {
-        DirectedGraph graph = this.model.getDirectedGraph();
-        Progress.switchToIndeterminate(this.progress);
         Progress.start(this.progress);
+        Progress.switchToIndeterminate(this.progress);
+
+        DirectedGraph graph = this.model.getDirectedGraph();
 
         List<OSMNode> matchedNodeP = new ArrayList<OSMNode>();
         List<Node> matchedNodeT = new ArrayList<Node>();
 
-        long startNodeOSMId = osm.nearestNodeId(this.startLat, this.startLon);
+        long startNodeOSMId = osm.nearestNodeId(this.startLat, this.startLon, 200d);
         OSMNode startPointP = osm.getNodeById(startNodeOSMId);
         Node startPointT = this.startNode;
 
@@ -66,60 +68,105 @@ public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask
                 matchedNodePSet.add(startPointP);
             }
 
-            for (String edgeIdP : startPointP.getOut()){
-                OSMEdge edgeP = this.osm.getEdgeById(edgeIdP);
+            for(Edge edgeT : graph.getOutEdges(startPointT)){
+                double lenT = (Double) edgeT.getAttribute("road_length");
+                double angleT = (Double) edgeT.getAttribute("road_angle");
 
-                for(Edge edgeT : graph.getOutEdges(startPointT)){
-                    Object lenObjT = edgeT.getAttribute("road_length");
-                    double lenT = (Double) lenObjT;
-                    Object angleObjT = edgeT.getAttribute("road_angle");
-                    double angleT = (Double) angleObjT;
+                OSMNode matchedNode = matchOsmEdgeOutDFS(startPointP, startPointP, angleT, lenT);
+                if(matchedNode!=null){
+                    matchedNodeP.add(matchedNode);
+                    matchedNodeT.add(edgeT.getTarget());
 
-                    if(Math.abs(angleT-edgeP.getAngle())<6){//Math.abs(edgeT.length-edgeP.length)<20 &&
-//                        edgeP.gridId = edgeT.gridId;
-//                        edgeP.chainId = edgeT.chainId;
-//                        edgeT.end.setLongitude(edgeP.end.longitude);
-//                        edgeT.end.setLatitude(edgeP.end.latitude);
-//                        log.info("{}", edgeP);
-//                        matchedEdgeP.add(edgeP);
-//                        matchedEdgeT.add(edgeT);
-                        edgeT.setColor(Color.RED);
-                        matchedNodeP.add(this.osm.getNodeById(edgeP.getEndId()));
-                        matchedNodeT.add(edgeT.getTarget());
-                        i++;
-                        break;
-                    }
+                    edgeT.setColor(Color.RED);
+                    i++;
+                    break;
+//                    edgeP.gridId = edgeT.gridId;
+//                    edgeP.chainId = edgeT.chainId;
+//                    edgeT.end.setLongitude(edgeP.end.longitude);
+//                    edgeT.end.setLatitude(edgeP.end.latitude);
+//                    log.info("{}", edgeP);
+//                    matchedEdgeP.add(edgeP);
+//                    matchedEdgeT.add(edgeT);
                 }
             }
 
-            for (String edgeIdP : startPointP.getIn()){
-                OSMEdge edgeP = this.osm.getEdgeById(edgeIdP);
+            for(Edge edgeT : graph.getInEdges(startPointT)){
+                double lenT = (Double) edgeT.getAttribute("road_length");
+                double angleT = (Double) edgeT.getAttribute("road_angle");
 
-                for(Edge edgeT : graph.getInEdges(startPointT)){
-                    Object lenObjT = edgeT.getAttribute("road_length");
-                    double lenT = (Double) lenObjT;
-                    Object angleObjT = edgeT.getAttribute("road_angle");
-                    double angleT = (Double) angleObjT;
-                    if(Math.abs(angleT-edgeP.getAngle())<6){ //Math.abs(edgeT.length-edgeP.length)<20 &&
-//                        edgeP.gridId = edgeT.gridId;
-//                        edgeP.chainId = edgeT.chainId;
-//                        edgeT.start.setLongitude(edgeP.start.longitude);
-//                        edgeT.start.setLatitude(edgeP.start.latitude);
-//                        log.info("{}", edgeP);
-//                        matchedEdgeP.add(edgeP);
-//                        matchedEdgeT.add(edgeT);
-                        edgeT.setColor(Color.RED);
-                        matchedNodeP.add(this.osm.getNodeById(edgeP.getStartId()));
-                        matchedNodeT.add(edgeT.getSource());
-                        i++;
-                        break;
-                    }
+                OSMNode matchedNode = matchOsmEdgeInDFS(startPointP, startPointP, angleT, lenT);
+                if(matchedNode!=null){
+                    matchedNodeP.add(matchedNode);
+                    matchedNodeT.add(edgeT.getSource());
+                    edgeT.setColor(Color.RED);
+                    i++;
+                    break;
                 }
             }
+
             startPointT.setColor(Color.RED);
         }
-
+        handler(null);
         Progress.finish(this.progress);
+    }
+
+    private OSMNode matchOsmEdgeOutDFS(OSMNode root, OSMNode start, double angleT, double lenT) {
+        for (String eid : start.getOut())
+        {
+            OSMNode end = osm.getNodeById(osm.getEdgeById(eid).getEndId());
+            double angle = calcAngle(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude());
+            if(Math.abs(angleT-angle)<6)
+            {
+                double dis = calcDistance(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude());
+                if(Math.abs(lenT-dis)<30){ // match success
+                    return end;
+                }else if(lenT>dis){ // continue matching
+                    return matchOsmEdgeOutDFS(root, end, angleT, lenT);
+                }else{ // lenT<dis
+                    return null;
+                }
+            }
+        }
+        return null; // not found angle match ,failed.
+    }
+
+    private OSMNode matchOsmEdgeInDFS(OSMNode root, OSMNode start, double angleT, double lenT) {
+        for (String eid : start.getIn())
+        {
+            OSMNode end = osm.getNodeById(osm.getEdgeById(eid).getStartId());
+            double angle = calcAngle(end.getLatitude(), end.getLongitude(), start.getLatitude(), start.getLongitude());
+            if(Math.abs(angleT-angle)<6)
+            {
+                double dis = calcDistance(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude());
+                if(Math.abs(lenT-dis)<30){ // match success
+                    return end;
+                }else if(lenT>dis){ // continue matching
+                    return matchOsmEdgeInDFS(root, end, angleT, lenT);
+                }else{ // lenT<dis
+                    return null;
+                }
+            }
+        }
+        return null; // not found angle match ,failed.
+    }
+
+    private double calcAngle(double lat1, double lon1, double lat2, double lon2){
+        if (!Double.isNaN(lat1) && !Double.isNaN(lat2) && !Double.isNaN(lon1) && !Double.isNaN(lon2)) {
+            double theta = Math.atan2(lon2 - lon1, lat2 - lat1);
+            double angle = 180 * theta / Math.PI;
+            if (angle < 0) angle += 360;
+            return angle;
+        }else{
+            throw new RuntimeException("lat or lon is not a number");
+        }
+    }
+
+    private double calcDistance(double lat1, double lon1, double lat2, double lon2){
+        if (!Double.isNaN(lat1) && !Double.isNaN(lat2) && !Double.isNaN(lon1) && !Double.isNaN(lon2)) {
+            return Helper.DIST_EARTH.calcDist(lat1, lon1, lat2, lon2);
+        }else{
+            throw new RuntimeException("lat or lon is not a number");
+        }
     }
 
     @Override
