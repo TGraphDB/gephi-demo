@@ -13,9 +13,13 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -35,6 +39,7 @@ public class CorrectNetworkTool implements Tool {
 
     CorrectNetToolUI ui;
     Node node;
+    File mappingFile;
 
     AtomicBoolean isRunning = new AtomicBoolean(false);
 
@@ -89,12 +94,14 @@ public class CorrectNetworkTool implements Tool {
         JTextField longitudeTxt;
         JButton selectOSMFileBtn;
         JButton startCorrectBtn;
+        private JButton selectCorrectMappingFileBtn;
 
         @Override
         public JPanel getPropertiesBar(Tool tool) {
             JPanel panel = new JPanel();
             note = new JLabel("Correct Road with OSM data (hover for more tips)");
             selectOSMFileBtn = new JButton("Browse.");
+            selectCorrectMappingFileBtn = new JButton("Mapping file...");
             latitudeTxt = new JTextField("latitude", 20);
             longitudeTxt = new JTextField("longitude", 20);
             startCorrectBtn = new JButton("Correct");
@@ -117,13 +124,21 @@ public class CorrectNetworkTool implements Tool {
                 }
             });
 
+            selectCorrectMappingFileBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    Button_selectCorrectMappingMouseClicked(evt);
+                }
+            });
+
             panel.add(note);
             panel.add(selectOSMFileBtn);
             panel.add(latitudeTxt);
             panel.add(longitudeTxt);
+            panel.add(selectCorrectMappingFileBtn);
             panel.add(startCorrectBtn);
             return panel;
         }
+
 
 
         @Override
@@ -180,34 +195,100 @@ public class CorrectNetworkTool implements Tool {
         }
 
 
-        private void Button_beginCorrectMouseClicked(MouseEvent evt) {
-            if(!isRunning.get() && osmStorage!=null && node!=null){
-                double lat = Double.parseDouble(latitudeTxt.getText());
-                double lon = Double.parseDouble(longitudeTxt.getText());
+        private void Button_selectCorrectMappingMouseClicked(MouseEvent evt)
+        {
+            JFileChooser fc = new JFileChooser();
+            fc.setFileFilter(new MappingFileFilter());
+            fc.setDialogTitle("choose OSM file (e.g. beijing_around.pbf)");
+            fc.setDialogType(JFileChooser.OPEN_DIALOG);
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                final File file = fc.getSelectedFile();
+                if (file.exists()) {
+                    mappingFile = file;
+                    ui.note.setText("mapping file chosen");
+                }else{
+                    throw new RuntimeException("TGraph: file not exist");
+                }
+            }
+        }
+
+        private void Button_beginCorrectMouseClicked(MouseEvent evt)
+        {
+            if (!isRunning.get() && osmStorage != null)
+            {
                 GraphController gc = Lookup.getDefault().lookup(GraphController.class);
-                CorrectNetworkAsyncTask task = new CorrectNetworkAsyncTask(
-                        gc.getGraphModel(),
-                        osmStorage,
-                        node,
-                        lat, lon ){
-                    @Override
-                    public void guiHandler(Object value) {
-                        isRunning.set(false);
-                        ui.note.setText("correct finish.");
-                    }
-                };
-                isRunning.set(true);
-                new LongTaskExecutor(true).execute(task, task, "reading...", null);
-            }else if(isRunning.get()){
+                CorrectNetworkAsyncTask task = null;
+
+                if (latitudeTxt.getText().equals("file") && mappingFile != null)
+                {
+                    task = new CorrectNetworkAsyncTask(
+                            gc.getGraphModel(),
+                            osmStorage,
+                            mappingFile)
+                    {
+                        @Override
+                        public void guiHandler(Object value)
+                        {
+                            isRunning.set(false);
+                            ui.note.setText("correct finish.");
+                        }
+                    };
+                    isRunning.set(true);
+                    new LongTaskExecutor(true).execute(task, task, "reading...", null);
+                } else if (node != null)
+                {
+                    double lat = Double.parseDouble(latitudeTxt.getText());
+                    double lon = Double.parseDouble(longitudeTxt.getText());
+                    task = new CorrectNetworkAsyncTask(
+                            gc.getGraphModel(),
+                            osmStorage,
+                            node,
+                            lat, lon)
+                    {
+                        @Override
+                        public void guiHandler(Object value)
+                        {
+                            isRunning.set(false);
+                            ui.note.setText("correct finish.");
+                        }
+                    };
+                    isRunning.set(true);
+                    new LongTaskExecutor(true).execute(task, task, "reading...", null);
+                } else
+                {
+                    ui.note.setText("please select node from graph or select mapping file");
+                }
+            } else if (isRunning.get())
+            {
                 ui.note.setText("busy running, please wait");
-            }else if(osmStorage==null){
+            } else
+            { // osmStorage==null
                 ui.note.setText("please browse osm data");
-            }else{
-                ui.note.setText("please select node from graph");
             }
         }
 
 
 
+    }
+
+    private class MappingFileFilter extends FileFilter{
+
+        @Override
+        public boolean accept(File f)
+        {
+            if(f.exists() && f.isDirectory()){
+                return true;
+            }else if(f.getName().toLowerCase().endsWith(".mapping")){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        @Override
+        public String getDescription()
+        {
+            return "only show valid mapping files";
+        }
     }
 }

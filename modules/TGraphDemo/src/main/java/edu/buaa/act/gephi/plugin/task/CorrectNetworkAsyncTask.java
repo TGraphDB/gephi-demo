@@ -11,6 +11,10 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,11 +25,12 @@ import java.util.Set;
  */
 public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask, Runnable  {
 
-    private final OSMStorage osm;
-    private final GraphModel model;
-    private final double startLat;
-    private final double startLon;
-    private final Node startNode;
+    private File mappingFile;
+    private OSMStorage osm;
+    private GraphModel model;
+    private double startLat;
+    private double startLon;
+    private Node startNode;
     private ProgressTicket progress;
 
 
@@ -38,6 +43,13 @@ public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask
         this.startLon = startLon;
     }
 
+    public CorrectNetworkAsyncTask(GraphModel graphModel, OSMStorage osmStorage, File mappingFile)
+    {
+        this.osm = osmStorage;
+        this.model = graphModel;
+        this.mappingFile = mappingFile;
+    }
+
     @Override
     public void run() {
         Progress.start(this.progress);
@@ -45,12 +57,60 @@ public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask
 
         DirectedGraph graph = this.model.getDirectedGraph();
 
+        if(this.mappingFile!=null && this.mappingFile.exists()){
+            try
+            {
+                BufferedReader reader = new BufferedReader(new FileReader(this.mappingFile));
+                String line = null;
+                while((line = reader.readLine())!=null){
+                    if(line.trim().startsWith("#")||line.trim().startsWith("//")) continue;
+                    String[] content = line.split("(//)|#");
+                    String[] arr = content[0].trim().split("[\\s,]+");
+                    if(arr.length==3){
+                        String tid = arr[0];
+                        double lat = Double.parseDouble(arr[1]);
+                        double lon = Double.parseDouble(arr[2]);
+                        System.out.println(tid+" "+lat+" "+lon);
+                        Node startGephi =  graph.getNode(gephiNodeId(Integer.parseInt(tid)));
+                        long startNodeOSMId = osm.nearestNodeId(lat, lon, 200d);
+                        System.out.println(startGephi+" "+startNodeOSMId);
+                        mappingProgress(graph, osm.getNodeById(startNodeOSMId), startGephi);
+                    }else if(arr.length==2){
+                        String tid = arr[0];
+                        long startNodeOSMId = Long.parseLong(arr[1]);
+                        Node startGephi =  graph.getNode(gephiNodeId(Integer.parseInt(tid)));
+                        System.out.println(tid+" "+startNodeOSMId);
+                        System.out.println(startGephi+" "+startNodeOSMId);
+                        mappingProgress(graph, osm.getNodeById(startNodeOSMId), startGephi);
+                    }else{
+                        System.out.println("Skip line: "+line);
+                    }
+                }
+                reader.close();
+            } catch (java.io.IOException e)
+            {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+        }else{
+            long startNodeOSMId = osm.nearestNodeId(this.startLat, this.startLon, 200d);
+            System.out.println(this.startNode+" "+startNodeOSMId);
+            mappingProgress(graph, osm.getNodeById(startNodeOSMId), this.startNode);
+        }
+
+        handler(null);
+        Progress.finish(this.progress);
+    }
+
+    private String gephiNodeId(int node){
+        return String.format("%06d",node);
+    }
+
+    private void mappingProgress(DirectedGraph graph, OSMNode startPointP, Node startPointT){
         List<OSMNode> matchedNodeP = new ArrayList<OSMNode>();
         List<Node> matchedNodeT = new ArrayList<Node>();
 
-        long startNodeOSMId = osm.nearestNodeId(this.startLat, this.startLon, 200d);
-        OSMNode startPointP = osm.getNodeById(startNodeOSMId);
-        Node startPointT = this.startNode;
 
         matchedNodeP.add(startPointP);
         matchedNodeT.add(startPointT);
@@ -106,8 +166,6 @@ public class CorrectNetworkAsyncTask extends GUIHook<Object> implements LongTask
 
             startPointT.setColor(Color.RED);
         }
-        handler(null);
-        Progress.finish(this.progress);
     }
 
     private OSMNode matchOsmEdgeOutDFS(OSMNode root, OSMNode start, double angleT, double lenT) {
