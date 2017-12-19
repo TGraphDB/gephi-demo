@@ -57,6 +57,7 @@ public class OSMStorage {
                         TLongList wayNodes = way.getNodes();
                         long wayId = way.getId();
                         String wayName = way.getTag("name", "");
+                        String wayType = way.getTag("highway", "");
                         for (int i = 0; i < wayNodes.size(); i++) {
                             long osmNodeId = wayNodes.get(i);
                             if (nodeMap.containsKey(osmNodeId)) {
@@ -67,7 +68,7 @@ public class OSMStorage {
 
                             if (i > 0) {
                                 long preNodeId = wayNodes.get(i - 1);
-                                OSMEdge edge = new OSMEdge(preNodeId, osmNodeId, wayId, wayName);
+                                OSMEdge edge = new OSMEdge(preNodeId, osmNodeId, wayId, wayName, wayType);
                                 edge.setId(wayId + ":" + wayCount);
                                 edgeMap.put(edge.getId(), edge);
                                 wayCount++;
@@ -101,6 +102,7 @@ public class OSMStorage {
                         TLongList wayNodes = way.getNodes();
                         long wayId = way.getId();
                         String wayName = way.getTag("name", "");
+                        String wayType = way.getTag("highway", "");
                         for (int i = 0; i < wayNodes.size(); i++) {
                             long osmNodeId = wayNodes.get(i);
                             if (nodeMap.containsKey(osmNodeId)) {
@@ -111,7 +113,7 @@ public class OSMStorage {
 
                             if (i > 0) {
                                 long preNodeId = wayNodes.get(i - 1);
-                                OSMEdge edge = new OSMEdge(preNodeId, osmNodeId, wayId, wayName);
+                                OSMEdge edge = new OSMEdge(preNodeId, osmNodeId, wayId, wayName, wayType);
                                 edge.setId(wayId + ":" + wayCount);
                                 edgeMap.put(edge.getId(), edge);
                                 wayCount++;
@@ -254,6 +256,8 @@ public class OSMStorage {
     }
 
     private static Set<String> ferries = new HashSet<String>(Arrays.asList("shuttle_train","ferry"));
+    private static Set<String> refuse = new HashSet<String>(Arrays.asList(
+            "disused","footway","pedestrian","road","construction","unclassified","residential","service","cycleway"));//
     private static boolean filterWay(ReaderWay way) {
         // ignore broken geometry
         if (way.getNodes().size() < 2)
@@ -273,6 +277,8 @@ public class OSMStorage {
                 if (motorcarTag == null && !way.hasTag("foot") && !way.hasTag("bicycle") || "yes".equals(motorcarTag))
                     return true;
             }
+            return false;
+        }else if(refuse.contains(highwayValue) || highwayValue.isEmpty()){
             return false;
         }
 
@@ -404,6 +410,7 @@ public class OSMStorage {
 
     public static class OSMEdge
     {
+        private  String type;
         private  long wayId;
         private  String name;
         private  long startId;
@@ -426,13 +433,14 @@ public class OSMStorage {
             this.fromOSM = false;
         }
 
-        OSMEdge(long start, long end, long wayId, String wayName)
+        OSMEdge(long start, long end, long wayId, String wayName, String type)
         {
             this.startId = start;
             this.endId = end;
             this.wayId = wayId;
             this.name = wayName;
             this.fromOSM = true;
+            this.type = type;
         }
 
         public long getWayId() {
@@ -465,6 +473,10 @@ public class OSMStorage {
 
         public void setAngle(double angle) {
             this.angle = angle;
+        }
+
+        public String getType() {
+            return type;
         }
 
         @Override

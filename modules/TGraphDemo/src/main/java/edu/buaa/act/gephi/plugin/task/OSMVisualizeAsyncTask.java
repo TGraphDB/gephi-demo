@@ -42,6 +42,9 @@ public class OSMVisualizeAsyncTask  extends GUIHook<Object> implements LongTask,
         addColumnIfNotExist(nodeTable, "latitude", Double.class);
         addColumnIfNotExist(nodeTable,"longitude", Double.class);
 
+        Table edgeTable = model.getEdgeTable();
+        addColumnIfNotExist(edgeTable, "highwayType", String.class);
+
         for(OSMStorage.OSMNode osmNode : allNodes){
             Node gephiNode = factory.newNode(String.valueOf(osmNode.getOsmId()));
             gephiNode.setX((float) (osmNode.getLongitude()-116.39)*10000);
@@ -58,6 +61,8 @@ public class OSMVisualizeAsyncTask  extends GUIHook<Object> implements LongTask,
             Node source = nodeMap.get(osmEdge.getStartId());
             Node target = nodeMap.get(osmEdge.getEndId());
             Edge gephiEdge = factory.newEdge(source, target, true);
+            gephiEdge.setAttribute("highwayType", osmEdge.getType());
+            gephiEdge.setLabel(osmEdge.getName());
             graph.addEdge(gephiEdge);
             Progress.progress(progress, "add edges...");
         }
