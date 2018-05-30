@@ -5,9 +5,7 @@ import edu.buaa.act.gephi.plugin.preview.HeatMapRenderer;
 import edu.buaa.act.gephi.plugin.utils.Clock;
 import edu.buaa.act.gephi.plugin.utils.LinearGradientInt;
 import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
-import org.gephi.appearance.plugin.RankingElementColorTransformer;
 import org.gephi.graph.api.Edge;
-import org.gephi.preview.api.G2DTarget;
 import org.gephi.preview.api.Item;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
@@ -156,7 +154,7 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
 //        return (Integer) r.getProperty("length");
         final int[] result = new int[]{0};
         if(r.hasProperty("full-status")){
-            r.getTemporalProperties("full-status", startTime, startTime + winSize, new TemporalPropertyRangeQuery() {
+            r.getTemporalProperty("full-status", startTime, startTime + winSize, new TemporalPropertyRangeQuery() {
                 @Override
                 public Object onReturn()
                 {
