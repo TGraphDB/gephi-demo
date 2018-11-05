@@ -8,13 +8,15 @@ This Gephi plugin shows the power of TGraph database. It is a tiny traffic-query
 
 This plugin also provide a Database-Builder to help you build a fresh TGraph database from raw data files.
 
+Watch [this video](https://youtu.be/nbWa_5OL3GU) ([this](http://mashuai.buaa.edu.cn/TGraphdemo.avi) or [this](http://amitabha.water-crystal.org/TGraphDemo.mp4) if the first broken) to know what this plugin demonstrate in 3 minutes.
+
 ## System requirement
 - Java Runtime Environment version 8.0 or higher
 - Gephi 0.9.1
 
 # Plugin Installation
 
-Download latest plugin from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`059fa4ec2c263c52742f12d0bdf91a4a`)
+Download latest plugin from [here](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`059fa4ec2c263c52742f12d0bdf91a4a`)
 
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
 then choose the `gephi-plugin-tgraph-demo-1.0.0.nbm` and press `OK`.
@@ -24,22 +26,22 @@ Then check the `install` checkbox and press `Install` button. This plugin is not
 # TGraph Database Installation
 This plugin is packed with TGraph kernel (the database management system program) in. To get the data to play with, you have two options: to download an exist database from web, or build the database yourself from raw data. The former choice is quick and easy but only contains temporal data of 5 hours, while the later one provide you more choice.
 
-### Download an exist DB
+### Download an exist DB (Recommand)
 Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:10 to 10:06 (about 231MB)
-from [here](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/TGraph-demo-DB.tar) (md5 checksum:`5341788728d6260f9e0aabe5fd55d017`)
+from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraph-demo-DB.tar) (md5 checksum:`5341788728d6260f9e0aabe5fd55d017`)
 
 ### Build DB from raw data
 > 1. Build database from raw data requires extra 1~3GB memory in your computer.
 > 2. You must install this plugin to Gephi to use this feature.
 
 #### download raw data
-- Beijing network topology, [Topo.csv](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
+- Beijing network topology, [Topo.csv](http://amitabha.water-crystal.org/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
 - Traffic data(at lease one, but more if you like) at:
-  - [2010-11-04](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101104.tar.gz)(md5:`fbf555adb8fbc018c73016f31baed086`)
-  - [2010-11-05](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101105.tar.gz)(md5:`989e76ad6e2606324c17804e4b3a72e3`)
-  - [2010-11-06](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101106.tar.gz)(md5:`91999663ba1be49920ad7b4877c2a0cb`)
-  - [2010-11-07](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101107.tar.gz)(md5:`fd0846aa8b2fb767d389beea040c404e`)
-  - [2010-11-08](http://7bvaq3.com1.z0.glb.clouddn.com/TGraphDemo/20101108.tar.gz)(md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
+  - [2010-11-04](http://amitabha.water-crystal.org/TGraphDemo/20101104.tar.gz)(md5:`fbf555adb8fbc018c73016f31baed086`)
+  - [2010-11-05](http://amitabha.water-crystal.org/TGraphDemo/20101105.tar.gz)(md5:`989e76ad6e2606324c17804e4b3a72e3`)
+  - [2010-11-06](http://amitabha.water-crystal.org/TGraphDemo/20101106.tar.gz)(md5:`91999663ba1be49920ad7b4877c2a0cb`)
+  - [2010-11-07](http://amitabha.water-crystal.org/TGraphDemo/20101107.tar.gz)(md5:`fd0846aa8b2fb767d389beea040c404e`)
+  - [2010-11-08](http://amitabha.water-crystal.org/TGraphDemo/20101108.tar.gz)(md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
 - **Extra all compressed data**.
 
 #### build database
