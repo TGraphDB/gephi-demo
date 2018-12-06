@@ -33,7 +33,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerModel;
 
 import edu.buaa.act.gephi.plugin.utils.TGraphFileView;
-import org.act.neo4j.temporal.demo.utils.Helper;
+import org.act.tgraph.demo.utils.Helper;
 
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;

@@ -1,9 +1,9 @@
 package edu.buaa.act.gephi.plugin.task;
 
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
-import org.act.neo4j.temporal.demo.utils.Helper;
-import org.act.neo4j.temporal.demo.utils.Hook;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.utils.Helper;
+import org.act.tgraph.demo.utils.Hook;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;

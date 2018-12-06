@@ -1,6 +1,6 @@
 package edu.buaa.act.gephi.plugin.task;
-import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.algo.TGraphTraversal;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.GraphFactory;
@@ -88,117 +88,117 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
         Progress.finish(progressTicket);
     }
 
-//    //old one: import without consider of road level (type)
-//    @Override
-//    public void runInTransaction() {
-//        Node startNode = db.getNodeById(startNodeId);
-//        Relationship startEdge = startNode.getRelationships().iterator().next();
-//        addNodeAtRandomPlace(startNode);
-//
-//        traversal.edgeBFS(startEdge, new TGraphTraversal.EdgeBFSAction() {
-//
-//            @Override
-//            public boolean visit(Relationship edge) {
-//                org.gephi.graph.api.Node start = tryGetStartGephiNode(edge);
-//                org.gephi.graph.api.Node end = tryGetEndGephiNode(edge);
-//                if (start != null && end == null) {
-//                    drawEndNode(edge, start);
-//                } else if (start == null && end != null) {
-//                    drawStartNode(edge, end);
-//                } else if (start != null && end != null) {
-//                    drawEdge(edge, start, end);
-//                } else { // start==null && end==null
-//                     throw new RuntimeException("Both nodes not exist in graph!");
-//                }
-//                try {
-//                    if (importSpeed < 1) {
-////                        System.out.println("sleep "+ 1/importSpeed +"ms");
-//                        Thread.sleep((long) (1 / importSpeed));
-//                    }
-//                } catch (InterruptedException e) {
-//                    return false;
-//                }
-//                Progress.progress(progressTicket);
-//                return shouldGo;
-//            }
-//
-//        }, false);
-//        setReturnValue(nodeImportedCount);
-//    }
-
-    Map<Integer, Long> levelStartNode = new HashMap<Integer, Long>();
-
-    // new one: import highway first, then level one, then level two...
+    //old one: import without consider of road level (type)
     @Override
     public void runInTransaction() {
-        levelStartNode.put(1, 23716L);
-        levelStartNode.put(2, 25679L);
-        levelStartNode.put(3, 54824L);
-        levelStartNode.put(4, 44356L);
-        levelStartNode.put(5, 22933L);
-        levelStartNode.put(6, 22542L);
-        levelStartNode.put(11,22450L);
+        Node startNode = db.getNodeById(startNodeId);
+        Relationship startEdge = startNode.getRelationships().iterator().next();
+        addNodeAtRandomPlace(startNode);
 
-        for(final Map.Entry<Integer,Long> entry : levelStartNode.entrySet())
-        {
-            Node startNode = db.getNodeById(entry.getValue());
-            Relationship startEdge = null;
-            for(Relationship r :startNode.getRelationships())
-            {
-                Integer type = (Integer) r.getProperty("type");
-                if (type != null && type == entry.getKey())
-                {
-                    startEdge = r;
+        traversal.edgeBFS(startEdge, new TGraphTraversal.EdgeBFSAction() {
+
+            @Override
+            public boolean visit(Relationship edge) {
+                org.gephi.graph.api.Node start = tryGetStartGephiNode(edge);
+                org.gephi.graph.api.Node end = tryGetEndGephiNode(edge);
+                if (start != null && end == null) {
+                    drawEndNode(edge, start);
+                } else if (start == null && end != null) {
+                    drawStartNode(edge, end);
+                } else if (start != null && end != null) {
+                    drawEdge(edge, start, end);
+                } else { // start==null && end==null
+                     throw new RuntimeException("Both nodes not exist in graph!");
                 }
-            }
-            if(startEdge==null) throw new RuntimeException("SNH: startEdge is null!");
-
-            if(entry.getKey()==1) addNodeAtRandomPlace(startNode);
-
-            traversal.edgeBFS(startEdge, new TGraphTraversal.EdgeBFSAction()
-            {
-                @Override
-                public boolean visit(Relationship edge)
-                {
-                    Integer type = (Integer) edge.getProperty("type");
-                    if (type != null && type == entry.getKey())
-                    {
-                        org.gephi.graph.api.Node start = tryGetStartGephiNode(edge);
-                        org.gephi.graph.api.Node end = tryGetEndGephiNode(edge);
-                        if (start != null && end == null)
-                        {
-                            drawEndNode(edge, start);
-                        } else if (start == null && end != null)
-                        {
-                            drawStartNode(edge, end);
-                        } else if (start != null && end != null)
-                        {
-                            drawEdge(edge, start, end);
-                        } else
-                        { // start==null && end==null
-                            return shouldGo;
-                            // throw new RuntimeException("Both nodes not exist in graph!");
-                        }
-                        try
-                        {
-                            if (importSpeed < 1)
-                            {
+                try {
+                    if (importSpeed < 1) {
 //                        System.out.println("sleep "+ 1/importSpeed +"ms");
-                                Thread.sleep((long) (1 / importSpeed));
-                            }
-                        } catch (InterruptedException e)
-                        {
-                            return false;
-                        }
-                        Progress.progress(progressTicket);
+                        Thread.sleep((long) (1 / importSpeed));
                     }
-                    return shouldGo;
+                } catch (InterruptedException e) {
+                    return false;
                 }
-            }, false);
-        }
+                Progress.progress(progressTicket);
+                return shouldGo;
+            }
 
+        }, false);
         setReturnValue(nodeImportedCount);
     }
+
+//    Map<Integer, Long> levelStartNode = new HashMap<Integer, Long>();
+//
+//    // new one: import highway first, then level one, then level two...
+//    @Override
+//    public void runInTransaction() {
+//        levelStartNode.put(1, 23716L);
+//        levelStartNode.put(2, 25679L);
+//        levelStartNode.put(3, 54824L);
+//        levelStartNode.put(4, 44356L);
+//        levelStartNode.put(5, 22933L);
+//        levelStartNode.put(6, 22542L);
+//        levelStartNode.put(11,22450L);
+//
+//        for(final Map.Entry<Integer,Long> entry : levelStartNode.entrySet())
+//        {
+//            Node startNode = db.getNodeById(entry.getValue());
+//            Relationship startEdge = null;
+//            for(Relationship r :startNode.getRelationships())
+//            {
+//                Integer type = (Integer) r.getProperty("type");
+//                if (type != null && type == entry.getKey())
+//                {
+//                    startEdge = r;
+//                }
+//            }
+//            if(startEdge==null) throw new RuntimeException("SNH: startEdge is null!");
+//
+//            if(entry.getKey()==1) addNodeAtRandomPlace(startNode);
+//
+//            traversal.edgeBFS(startEdge, new TGraphTraversal.EdgeBFSAction()
+//            {
+//                @Override
+//                public boolean visit(Relationship edge)
+//                {
+//                    Integer type = (Integer) edge.getProperty("type");
+//                    if (type != null && type == entry.getKey())
+//                    {
+//                        org.gephi.graph.api.Node start = tryGetStartGephiNode(edge);
+//                        org.gephi.graph.api.Node end = tryGetEndGephiNode(edge);
+//                        if (start != null && end == null)
+//                        {
+//                            drawEndNode(edge, start);
+//                        } else if (start == null && end != null)
+//                        {
+//                            drawStartNode(edge, end);
+//                        } else if (start != null && end != null)
+//                        {
+//                            drawEdge(edge, start, end);
+//                        } else
+//                        { // start==null && end==null
+//                            return shouldGo;
+//                            // throw new RuntimeException("Both nodes not exist in graph!");
+//                        }
+//                        try
+//                        {
+//                            if (importSpeed < 1)
+//                            {
+////                        System.out.println("sleep "+ 1/importSpeed +"ms");
+//                                Thread.sleep((long) (1 / importSpeed));
+//                            }
+//                        } catch (InterruptedException e)
+//                        {
+//                            return false;
+//                        }
+//                        Progress.progress(progressTicket);
+//                    }
+//                    return shouldGo;
+//                }
+//            }, false);
+//        }
+//
+//        setReturnValue(nodeImportedCount);
+//    }
 
 
     private void drawStartNode(Relationship r, org.gephi.graph.api.Node end) {

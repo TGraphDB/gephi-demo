@@ -7,9 +7,9 @@
 package edu.buaa.act.gephi.plugin.task;
 
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
-import org.act.neo4j.temporal.demo.algo.TGraphTraversal;
-import org.act.neo4j.temporal.demo.algo.TGraphTraversal.DFSAction;
-import org.act.neo4j.temporal.demo.utils.Helper;
+import org.act.tgraph.demo.algo.TGraphTraversal;
+import org.act.tgraph.demo.algo.TGraphTraversal.DFSAction;
+import org.act.tgraph.demo.utils.Helper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.utils.progress.Progress;

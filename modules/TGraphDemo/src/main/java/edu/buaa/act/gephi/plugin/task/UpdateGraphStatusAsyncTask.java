@@ -1,6 +1,6 @@
 package edu.buaa.act.gephi.plugin.task;
 
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.Graph;
 import org.gephi.utils.longtask.spi.LongTask;

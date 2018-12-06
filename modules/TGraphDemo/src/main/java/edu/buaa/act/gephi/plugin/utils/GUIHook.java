@@ -1,7 +1,7 @@
 package edu.buaa.act.gephi.plugin.utils;
 
-import org.act.neo4j.temporal.demo.utils.Hook;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.utils.Hook;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 
 import javax.swing.*;
 import java.util.Map;

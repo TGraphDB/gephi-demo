@@ -1,7 +1,7 @@
 package edu.buaa.act.gephi.plugin.task;
 
-import org.act.neo4j.temporal.demo.utils.Helper;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.utils.Helper;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.utils.longtask.spi.LongTask;
 
 import java.util.Calendar;

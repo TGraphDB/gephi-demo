@@ -4,7 +4,9 @@ import edu.buaa.act.gephi.plugin.exception.TaskCancelException;
 import edu.buaa.act.gephi.plugin.preview.HeatMapRenderer;
 import edu.buaa.act.gephi.plugin.utils.Clock;
 import edu.buaa.act.gephi.plugin.utils.LinearGradientInt;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.temporalProperty.impl.InternalEntry;
+import org.act.temporalProperty.meta.ValueContentType;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
 import org.gephi.preview.api.Item;
 import org.gephi.utils.longtask.spi.LongTask;
@@ -12,7 +14,7 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.TemporalPropertyRangeQuery;
+import org.neo4j.temporal.TemporalRangeQuery;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
@@ -154,31 +156,32 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
 //        return (Integer) r.getProperty("length");
         final int[] result = new int[]{0};
         if(r.hasProperty("full-status")){
-            r.getTemporalProperty("full-status", startTime, startTime + winSize, new TemporalPropertyRangeQuery() {
+            r.getTemporalProperty("full-status", startTime, startTime + winSize, new TemporalRangeQuery() {
+                @Override
+                public void setValueType( ValueContentType valueType ) {}
+
+                @Override
+                public void onNewEntry( InternalEntry entry )
+                {
+                    if(entry.getKey().getValueType().isValue()){
+                        int status = entry.getValue().getInt( 0 );
+                        dataCount++;
+                        switch (status)
+                        {
+                        case 2:
+                            result[0]++;
+                            break;
+                        case 3:
+                            result[0] += 3;
+                            break;
+                        }
+                    }
+                }
+
                 @Override
                 public Object onReturn()
                 {
                     return null;
-                }
-
-                @Override
-                public boolean onTimePoint(int i, Object o)
-                {
-                    Integer status = (Integer) o;
-                    if(status!=null)
-                    {
-                        dataCount++;
-                        switch (status)
-                        {
-                            case 2:
-                                result[0]++;
-                                break;
-                            case 3:
-                                result[0] += 3;
-                                break;
-                        }
-                    }
-                    return true;
                 }
             });
 //        System.out.println(tmp+" "+result[0]);

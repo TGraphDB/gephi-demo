@@ -1,12 +1,12 @@
 package edu.buaa.act.gephi.plugin.task;
 
 import edu.buaa.act.gephi.plugin.utils.Result;
-import org.act.neo4j.temporal.demo.utils.Helper;
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
-import org.act.neo4j.temporal.demo.vo.Cross;
-import org.act.neo4j.temporal.demo.vo.RelType;
-import org.act.neo4j.temporal.demo.vo.RoadChain;
-import org.act.neo4j.temporal.demo.vo.TemporalStatus;
+import org.act.tgraph.demo.utils.Helper;
+import org.act.tgraph.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.vo.Cross;
+import org.act.tgraph.demo.vo.RelType;
+import org.act.tgraph.demo.vo.RoadChain;
+import org.act.tgraph.demo.vo.TemporalStatus;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
@@ -136,11 +136,16 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                                 if (r != null) {
                                     int dCount = dataCount[((int) r.getId())];
                                     if(dCount==0){
-                                        r.createTemporalProperty("travel-time", time, 4, temporalStatus.getTravelTime());
-                                        r.createTemporalProperty("full-status", time, 4, temporalStatus.getFullStatus());
-                                        r.createTemporalProperty("vehicle-count", time, 4, temporalStatus.getVehicleCount());
-                                        r.createTemporalProperty("segment-count", time, 4, temporalStatus.getSegmentCount());
-                                        r.createTemporalProperty("temporal-point", 1, 4, time); // count from 1.
+//                                        r.createTemporalProperty("travel-time", time, 4, temporalStatus.getTravelTime());
+//                                        r.createTemporalProperty("full-status", time, 4, temporalStatus.getFullStatus());
+//                                        r.createTemporalProperty("vehicle-count", time, 4, temporalStatus.getVehicleCount());
+//                                        r.createTemporalProperty("segment-count", time, 4, temporalStatus.getSegmentCount());
+//                                        r.createTemporalProperty("temporal-point", 1, 4, time); // count from 1.
+                                        r.setTemporalProperty("travel-time", time, temporalStatus.getTravelTime());
+                                        r.setTemporalProperty("full-status", time, temporalStatus.getFullStatus());
+                                        r.setTemporalProperty("vehicle-count", time, temporalStatus.getVehicleCount());
+                                        r.setTemporalProperty("segment-count", time, temporalStatus.getSegmentCount());
+                                        r.setTemporalProperty("temporal-point", dCount+1, time);
                                     }else {
                                         r.setTemporalProperty("travel-time", time, temporalStatus.getTravelTime());
                                         r.setTemporalProperty("full-status", time, temporalStatus.getFullStatus());

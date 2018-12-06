@@ -2,7 +2,7 @@ package edu.buaa.act.gephi.plugin.task;
 
 import com.google.common.collect.Lists;
 import edu.buaa.act.gephi.plugin.utils.GUIHook;
-import org.act.neo4j.temporal.demo.utils.Helper;
+import org.act.tgraph.demo.utils.Helper;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.ProgressTicket;
 
