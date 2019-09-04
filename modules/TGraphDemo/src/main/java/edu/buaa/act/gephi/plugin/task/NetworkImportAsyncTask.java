@@ -1,4 +1,5 @@
 package edu.buaa.act.gephi.plugin.task;
+import edu.buaa.act.gephi.plugin.tool.ImportNetworkTool;
 import org.act.tgraph.demo.algo.TGraphTraversal;
 import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.gephi.graph.api.Edge;
@@ -15,6 +16,7 @@ import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.Lookup;
 
 import java.awt.Color;
 import java.util.*;
@@ -43,7 +45,9 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
         this.db = db;
         this.model = model;
 //        this.startNodeId = startNodeId==0?46652:startNodeId;
-        this.startNodeId = startNodeId==0?51849:startNodeId;
+//        this.startNodeId = startNodeId==0?51849:startNodeId;
+        ImportNetworkTool tool = Lookup.getDefault().lookup( ImportNetworkTool.class );
+        this.startNodeId = tool.getNodeId();
         this.totalNodes = nodeCount;
         this.importSpeed = speed;
         this.factory = model.factory();
