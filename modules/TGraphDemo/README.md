@@ -11,8 +11,8 @@ This plugin also provide a Database-Builder to help you build a fresh TGraph dat
 Watch [this video](https://youtu.be/nbWa_5OL3GU) ([this](http://mashuai.buaa.edu.cn/TGraphdemo.avi) or [this](http://amitabha.water-crystal.org/TGraphDemo.mp4) if the first broken) to know what this plugin demonstrate in 3 minutes.
 
 ## System requirement
-- Java Runtime Environment version 8.0 or higher
-- Gephi 0.9.1
+- Java Runtime Environment version 8 (or higher, not tested)
+- Gephi 0.9.2
 
 # Plugin Installation
 
@@ -35,13 +35,13 @@ from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraph-demo-DB.tar) (md
 > 2. You must install this plugin to Gephi to use this feature.
 
 #### download raw data
-- Beijing network topology, [Topo.csv](http://amitabha.water-crystal.org/TGraphDemo/Topo.csv.gz)(md5:`587284f28e49143884f6253d7e1ec793`)
+- Beijing network topology, [Topo.csv.gz](http://amitabha.water-crystal.org/TGraphDemo/Topo.csv.gz) (md5:`587284f28e49143884f6253d7e1ec793`)
 - Traffic data(at lease one, but more if you like) at:
-  - [2010-11-04](http://amitabha.water-crystal.org/TGraphDemo/20101104.tar.gz)(md5:`fbf555adb8fbc018c73016f31baed086`)
-  - [2010-11-05](http://amitabha.water-crystal.org/TGraphDemo/20101105.tar.gz)(md5:`989e76ad6e2606324c17804e4b3a72e3`)
-  - [2010-11-06](http://amitabha.water-crystal.org/TGraphDemo/20101106.tar.gz)(md5:`91999663ba1be49920ad7b4877c2a0cb`)
-  - [2010-11-07](http://amitabha.water-crystal.org/TGraphDemo/20101107.tar.gz)(md5:`fd0846aa8b2fb767d389beea040c404e`)
-  - [2010-11-08](http://amitabha.water-crystal.org/TGraphDemo/20101108.tar.gz)(md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
+  - [20101104.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101104.tar.gz) (md5:`fbf555adb8fbc018c73016f31baed086`)
+  - [20101105.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101105.tar.gz) (md5:`989e76ad6e2606324c17804e4b3a72e3`)
+  - [20101106.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101106.tar.gz) (md5:`91999663ba1be49920ad7b4877c2a0cb`)
+  - [20101107.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101107.tar.gz) (md5:`fd0846aa8b2fb767d389beea040c404e`)
+  - [20101108.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101108.tar.gz) (md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
 - **Extra all compressed data**.
 
 #### build database
@@ -58,7 +58,7 @@ from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraph-demo-DB.tar) (md
 
 
 # Notes
-1. **Disconnect from database BEFORE you close Gephi**, or the database may be **damaged**.
+1. **Disconnect from database BEFORE you close Gephi**, or the database may take long time to recovery when starting next start.
 
 2. All demo features (except `DB Builder`) are only available when the database is connected.
 
@@ -81,10 +81,13 @@ please use issue.
 See our [demo paper](http://dx.doi.org/10.1145/2983323.2983335) published in CIKM2016.
 
 # Change log
+## 2019-9
+* Packed with new TGraph kernel which is compatible with neo4j 2.3.13.
+
 ## 2016-10
 1. Better database folder chooser when connecting to a database.
 2. Fix Name error in Gephi plugin manager.
 3. Packed with new TGraph kernel which is compatible with neo4j 2.2.3.
 
 ## 2016-06
-A runnable version.
+* A runnable version.
