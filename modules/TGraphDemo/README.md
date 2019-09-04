@@ -16,19 +16,19 @@ Watch [this video](https://youtu.be/nbWa_5OL3GU) ([this](http://mashuai.buaa.edu
 
 # Plugin Installation
 
-Download latest plugin from [here](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm) (md5:`059fa4ec2c263c52742f12d0bdf91a4a`)
+Download latest plugin from [here](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-201909.nbm) (md5:`fdaf4d7d584bfc2913ded54bd913a30d`)
 
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
-then choose the `gephi-plugin-tgraph-demo-1.0.0.nbm` and press `OK`.
+then choose the downloaded nbm file and press `OK`.
 
 Then check the `install` checkbox and press `Install` button. This plugin is not signed, install it at your risk.
 
 # TGraph Database Installation
 This plugin is packed with TGraph kernel (the database management system program) in. To get the data to play with, you have two options: to download an exist database from web, or build the database yourself from raw data. The former choice is quick and easy but only contains temporal data of 5 hours, while the later one provide you more choice.
 
-### Download an exist DB (Recommand)
-Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 05:10 to 10:06 (about 231MB)
-from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraph-demo-DB.tar) (md5 checksum:`5341788728d6260f9e0aabe5fd55d017`)
+### Download an exist DB (Recommend)
+Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 00:00 to 13:00 (about 50MB)
+from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraphDemoDB201909.zip) (md5 checksum:`580a82cd84217586dafb50d56538b8a8`)
 
 ### Build DB from raw data
 > 1. Build database from raw data requires extra 1~3GB memory in your computer.
