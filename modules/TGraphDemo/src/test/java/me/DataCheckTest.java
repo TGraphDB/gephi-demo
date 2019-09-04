@@ -1,6 +1,6 @@
 package me;
 
-import org.act.neo4j.temporal.demo.utils.TransactionWrapper;
+import org.act.tgraph.demo.utils.TransactionWrapper;
 import org.junit.After;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
