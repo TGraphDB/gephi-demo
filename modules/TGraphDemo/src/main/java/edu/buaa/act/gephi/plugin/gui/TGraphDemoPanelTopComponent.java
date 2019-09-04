@@ -809,7 +809,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                                         for(FindSeparateSubGraphAsyncTask.IsolatedNetworkInfo info: value){
                                             model.addElement(info.getNodeCount()+" nodes. Start node id "+info.getStartNodeId());
                                         }
-                                        List_subGraph.setVisibleRowCount(7);
+                                        List_subGraph.setVisibleRowCount(3);
                                         List_subGraph.setModel(model);
                                         Label_subGraphCount.setText(value.size()+" found");
                                         setUIStatus(SUBNET_FOUND);
