@@ -33,11 +33,11 @@ public class TGraphFileView extends FileView {
 
     @Override
     public Icon getIcon(File file) {
-        if(accept(file)) {
+        if(isTGraphDir(file)) {
             if(isOldTGraph) {
                 return ImageUtilities.loadImageIcon("Neo4j-logo.png", false);
             }else{
-                return ImageUtilities.loadImageIcon("neo4j-logo-2015.png", false);
+                return ImageUtilities.loadImageIcon("time-machine1.png", false);
             }
         }else {
             return null;
@@ -46,10 +46,10 @@ public class TGraphFileView extends FileView {
     
     @Override
     public Boolean isTraversable(File f){
-        return !accept(f);
+        return true;
     }
 
-    private boolean accept(File directory) {
+    private boolean isTGraphDir(File directory) {
         if (directory.isDirectory()) {
             File[] files = directory.listFiles();
             if(files!=null){
