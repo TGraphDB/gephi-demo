@@ -1,5 +1,6 @@
 .DS_Store
 **/target/**
+*.log
 
 # Created by https://www.gitignore.io/api/maven,eclipse,netbeans,intellij
 # Edit at https://www.gitignore.io/?templates=maven,eclipse,netbeans,intellij
