@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Name: TGraphDB
+OpenIDE-Module-Short-Description: > TGraph is a database designed for temporal graph data.
+OpenIDE-Module-Long-Description: TGraphDB is a Neo4j compatiable database that manage temporal property (property value change history).
+OpenIDE-Module-Display-Category: Tool

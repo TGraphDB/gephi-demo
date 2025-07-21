@@ -13,7 +13,8 @@
     <modules>
         <!-- Add here the paths of all modules (e.g. <module>modules/MyModule</module>) -->
        <!-- <module>modules/NodeColorManager</module> -->
-       <module>modules/TGraphDemo</module>
+<!--       <module>modules/TGraphDemo</module>-->
+        <module>modules/TGraphDB</module>
     </modules>
     
     <!-- Properties -->
