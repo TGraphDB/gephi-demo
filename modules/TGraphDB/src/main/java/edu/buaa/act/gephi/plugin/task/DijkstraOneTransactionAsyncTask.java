@@ -48,7 +48,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
     private Map<Long,org.gephi.graph.api.Node> tgraphNode2GephiNode = new HashMap<Long,org.gephi.graph.api.Node>();
     private List<Long> path;
     private List<Integer> timeList;
-    private int pathRealLength = 0;
+    private double pathRealLength = 0;
     private long searchCount=0;
 
 
@@ -165,7 +165,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
                 if(edge!=null){
                     edge.setColor(pathColor);
                     edge.setWeight(2f);
-                    pathRealLength += (Integer) edge.getAttribute("road_length");
+                    pathRealLength += (Double) edge.getAttribute("road_length");
                     System.out.println("edge has direct.");
                 }else{
                     System.out.println("no edge between nodes! "+parent+"--"+child);
@@ -173,7 +173,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
             }else{
                 edge.setColor(pathColor);
                 edge.setWeight(2f);
-                pathRealLength += (Integer) edge.getAttribute("road_length");
+                pathRealLength += (Double) edge.getAttribute("road_length");
             }
             child = parent;
         }
@@ -186,7 +186,7 @@ public class DijkstraOneTransactionAsyncTask extends Traverse{
         Edge edge = model.getGraph().getEdge(begin, end);
         edge.setColor(pathColor);
         edge.setWeight(2f);
-        pathRealLength += (Integer) edge.getAttribute("road_length");
+        pathRealLength += (Double) edge.getAttribute("road_length");
         begin.setSize(3f);
         begin.setColor(Color.RED);
         //reverse array

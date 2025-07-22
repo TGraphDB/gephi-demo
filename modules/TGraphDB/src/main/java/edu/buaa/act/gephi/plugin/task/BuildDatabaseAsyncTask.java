@@ -174,7 +174,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
             }.start(db);
             result.inc("file-import");
             Progress.progress(progress);
-            Progress.progress(progress, result.get("time-point-data-count")+" time point data imported.("+result.get("file-import")+" files)");
+            Progress.progress(progress, result.get("time-point-data-count")+" time point data imported.("+result.get("file-import")+"/"+dataFileList.size()+" files)");
         }
     }
 

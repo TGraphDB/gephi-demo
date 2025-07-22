@@ -43,15 +43,15 @@ public abstract class Traverse extends TransactionWrapper<Object> implements Lon
         return result;
     }
 
-    public static String pathLength2Str(int len) {
+    public static String pathLength2Str(double len) {
         if(len<2000){
-            return len+" m";
+            return String.format("%.0f m",len);
         }else{
             return String.format("%.1f km",len/1000f);
         }
     }
 
     public interface GUICallBack{
-        void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength);
+        void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, double pathRealLength);
     }
 }

@@ -49,21 +49,23 @@ public class TGraphFileView extends FileView {
     }
 
     private boolean isTGraphDir(File directory) {
-        if (directory.isDirectory()) {
+        if (directory.getName().toLowerCase().endsWith("db") && directory.isDirectory() && !directory.isHidden() && !directory.getName().startsWith(".")) {
             File[] files = directory.listFiles();
-            if(files!=null){
+            if(files!=null && files.length==2){
                 int existingRequiredFiles = 0;
-                int oldCount = 0;
-                int newCount = 0;
+//                int newCount = 0;
                 for (File file : files) {
-                    if (neo4jRequireFileNames.contains(file.getName())) {
+                    if(file.isDirectory() && ("data".equals(file.getName()) || "logs".equals(file.getName()))){
                         existingRequiredFiles++;
-                    }else if (tGraphDirNames.contains(file.getName())){
-                        newCount++;
-                        isOldTGraph=false;
                     }
+//                    if (neo4jRequireFileNames.contains(file.getName())) {
+//
+//                    }else if (tGraphDirNames.contains(file.getName())){
+//                        newCount++;
+//                        isOldTGraph=false;
+//                    }
                 }
-                return existingRequiredFiles == neo4jRequireFileNames.size() || newCount == 2;
+                return existingRequiredFiles == 2;
             }
         }
         return false;

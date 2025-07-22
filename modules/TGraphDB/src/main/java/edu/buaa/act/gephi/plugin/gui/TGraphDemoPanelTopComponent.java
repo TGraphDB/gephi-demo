@@ -36,12 +36,10 @@ import edu.buaa.act.gephi.plugin.utils.Helper;
 import edu.buaa.act.gephi.plugin.utils.TGraphFileView;
 
 import org.gephi.graph.api.GraphController;
-import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.project.api.ProjectController;
 import org.gephi.utils.longtask.api.LongTaskExecutor;
 import org.neo4j.dbms.api.DatabaseManagementService;
-import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
@@ -946,7 +944,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
 
             Traverse.GUICallBack callback = new Traverse.GUICallBack() {
                 @Override
-                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength) {
+                public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, double pathRealLength) {
                     int arriveTime = arriveTimes.get(arriveTimes.size() - 1);
                     int startTime = arriveTimes.get(0);
                     String result = "Path found! Search " + searchNodeCount + " nodes.\n" +

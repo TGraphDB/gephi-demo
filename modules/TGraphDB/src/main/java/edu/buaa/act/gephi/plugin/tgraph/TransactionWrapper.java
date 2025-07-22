@@ -9,16 +9,19 @@ import org.neo4j.graphdb.Transaction;
  */
 public abstract class TransactionWrapper<T> {
     private T returnValue;
-    private boolean willCommit;
+    private final boolean willCommit;
     protected Hook<T> finishHook;
+
     public TransactionWrapper(){
         this(true);
     }
     public TransactionWrapper(boolean willCommit){
         this.willCommit = willCommit;
     }
+
     public abstract void runInTransaction(Transaction tx);
-    public TransactionWrapper start(GraphDatabaseService db){
+
+    public TransactionWrapper<T> start(GraphDatabaseService db){
         try(Transaction tx = db.beginTx()){
             runInTransaction(tx);
             if(willCommit) tx.commit();
@@ -27,13 +30,17 @@ public abstract class TransactionWrapper<T> {
         if(finishHook!=null) finishHook.handler(getReturnValue());
         return this;
     }
+
     protected void setReturnValue(T value){
         returnValue=value;
     }
+
     public T getReturnValue(){
         return returnValue;
     }
+
     protected void onFinish(Object returnValue){}
+
     public void onFinish(Hook<T> hook){
         this.finishHook = hook;
     }

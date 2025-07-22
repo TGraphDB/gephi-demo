@@ -54,7 +54,7 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
             Color pathColor){
         super(db, model, startId, endId, startTime, pathColor, new GUICallBack() {
             @Override
-            public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, int pathRealLength) {
+            public void onResult(long searchNodeCount, List<Long> path, List<Integer> arriveTimes, double pathRealLength) {
 
             }
         });
