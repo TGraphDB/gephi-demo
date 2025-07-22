@@ -1,7 +1,7 @@
 package edu.buaa.act.gephi.plugin.tgraph.vo;
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -150,9 +150,9 @@ public class Cross {
         setNodeId(node.getId());
     }
 
-    public Node getNode(GraphDatabaseService db) {
+    public Node getNode(Transaction tx) {
         if(hasSetNode) {
-            return db.getNodeById(getNodeId());
+            return tx.getNodeById(getNodeId());
         }else{
             return null;
         }

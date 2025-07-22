@@ -5,13 +5,14 @@ import edu.buaa.act.gephi.plugin.utils.Helper;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.graphdb.Transaction;
 
-import java.io.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,24 +23,26 @@ import java.util.Map;
 public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<String, Object>> implements LongTask, Runnable{
 
     private String dbPath;
+    private DatabaseManagementService dbms;
     private GraphDatabaseService db;
     private ProgressTicket progress;
+
 
     public GetTGraphDatabaseInfoAsyncTask(File dbPath) {
         this.dbPath=dbPath.getAbsolutePath();
     }
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
         int nodeCounts = 0;
         int relationshipCounts =0;
-        for (Node node : GlobalGraphOperations.at(db).getAllNodes()) {
+        for (Node node : tx.getAllNodes()) {
             Progress.progress(progress,nodeCounts+" node counted.");
             nodeCounts++;
         }
         int minTimeOfNetwork = Integer.MAX_VALUE-1;
         int maxTimeOfNetwork = 0;
-        for (Relationship r : GlobalGraphOperations.at(db).getAllRelationships()) {
+        for (Relationship r : tx.getAllRelationships()) {
             Integer minT = (Integer) r.getProperty("min-time");
             Integer maxT = (Integer) r.getProperty("max-time");
             if(minT!=null && maxT!=null){
@@ -59,6 +62,7 @@ public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<Strin
         result.put("edge-count", relationshipCounts);
         result.put("graph-min-time", minTimeOfNetwork);
         result.put("graph-max-time", maxTimeOfNetwork);
+        result.put("dbms", dbms);
         result.put("db-instance", db);
         setReturnValue(result);
     }
@@ -69,22 +73,12 @@ public class GetTGraphDatabaseInfoAsyncTask extends TransactionWrapper<Map<Strin
         Progress.switchToIndeterminate(progress);
         Progress.setDisplayName(progress, "TGraph: Connecting to database...");
         Progress.progress(progress, "DB Path: "+dbPath);
-//        File configFile = new File("/tmp/TGraphDemo.neo4j.conf");
-//        if(!configFile.exists()){
-//            try {
-//                configFile.createNewFile();
-//                Writer w = new BufferedWriter(new FileWriter(configFile));
-//                w.write("allow_store_upgrade=true");
-//                w.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-        db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder(dbPath).setConfig("allow_store_upgrade", "true")
+        dbms = new DatabaseManagementServiceBuilder(new File(dbPath).toPath()).build();
+        db = dbms.database("neo4j");
+//        db = new GraphDatabaseFactory()
+//                .newEmbeddedDatabaseBuilder(dbPath).setConfig("allow_store_upgrade", "true")
 //                .loadPropertiesFromFile("/tmp/TGraphDemo.neo4j.conf")
-                .newGraphDatabase();
-        // graphDb = new DatabaseManagementServiceBuilder(new File(dbDir).toPath()).build();
+//                .newGraphDatabase();
         Progress.setDisplayName(progress, "TGraph: Getting information from database...");
         this.start(db);
         Progress.finish(progress);

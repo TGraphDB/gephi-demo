@@ -3,6 +3,7 @@ package edu.buaa.act.gephi.plugin.task;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
+import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
@@ -10,10 +11,10 @@ import org.neo4j.graphdb.GraphDatabaseService;
  * Created by song on 16-6-3.
  */
 public class DatabaseShutDownAsyncTask implements LongTask, Runnable {
-    GraphDatabaseService db;
+    DatabaseManagementService db;
     private ProgressTicket p;
 
-    public DatabaseShutDownAsyncTask(GraphDatabaseService db){
+    public DatabaseShutDownAsyncTask(DatabaseManagementService db){
         this.db = db;
     }
 

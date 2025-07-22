@@ -40,8 +40,9 @@ import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.project.api.ProjectController;
 import org.gephi.utils.longtask.api.LongTaskExecutor;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -76,7 +77,7 @@ import org.openide.util.NbBundle.Messages;
     "HINT_TGraphDemoPanelTopComponent=Demonstration of TGraph DataBase: Traffic Data example."
 })
 public final class TGraphDemoPanelTopComponent extends TopComponent {
-
+    private DatabaseManagementService dbms;
     private GraphDatabaseService db;
     private String dbPath;
     private PluginStatus status=INIT;
@@ -781,8 +782,8 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     private void Button_connectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Button_connectMouseClicked
         if(status==INIT){
             JFileChooser jFileChooser = new JFileChooser();
-            jFileChooser.setFileView(new TGraphFileView());
             jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            jFileChooser.setFileView(new TGraphFileView());
             final File dbDir;
             if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 dbDir = jFileChooser.getSelectedFile();
@@ -801,6 +802,7 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
                                 totalEdgeCount = (Integer) value.get("edge-count");
                                 graphMinTime =  (Integer) value.get("graph-min-time");
                                 graphMaxTime =  (Integer) value.get("graph-max-time");
+                                dbms = (DatabaseManagementService) value.get("dbms");
                                 db = (GraphDatabaseService) value.get("db-instance");
                                 dbPath = dbDir.getAbsolutePath();
                                 setUIStatus(DB_READY);
@@ -833,14 +835,15 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
         }else{
             if(confirm("Disconnect from TGraph?")){
                 Button_connect.setEnabled(false);
-                DatabaseShutDownAsyncTask task = new DatabaseShutDownAsyncTask(db){
+                DatabaseShutDownAsyncTask task = new DatabaseShutDownAsyncTask(dbms){
                     @Override
                     public void onFinish(){
                         new GUIHook<Object>(){
                             @Override
                             public void guiHandler(Object value) {
-                                db=null;
-                                dbPath=null;
+                                db = null;
+                                dbms = null;
+                                dbPath = null;
                                 setUIStatus(INIT);
                             }
                         }.guiHandler(null);
@@ -1246,17 +1249,6 @@ public final class TGraphDemoPanelTopComponent extends TopComponent {
     
     private boolean confirm(String s){
         return DialogDisplayer.getDefault().notify(new NotifyDescriptor.Confirmation(s, NotifyDescriptor.OK_CANCEL_OPTION)) == NotifyDescriptor.OK_OPTION;
-    }
-    
-    private GraphDatabaseService getTGraphInstance(String absolutePath) {
-        if (db == null) {
-            dbPath = absolutePath;
-            db = new GraphDatabaseFactory()
-                    .newEmbeddedDatabaseBuilder(absolutePath)
-                    .loadPropertiesFromFile("")
-                    .newGraphDatabase();
-        }
-        return db;
     }
 
 

@@ -10,12 +10,14 @@ import edu.buaa.act.gephi.plugin.utils.Result;
 import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.temporal.TimePoint;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.temporal.TimePoint;
+//import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +38,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
     private List<RoadChain> roadList;
     private List<File> dataFileList;
     private String dbPath;
+    private DatabaseManagementService dbms;
     private GraphDatabaseService db;
     private ProgressTicket progress;
     private volatile boolean shouldGo=true;
@@ -74,10 +77,12 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
         }
         Progress.switchToIndeterminate(progress);
         Progress.setDisplayName(progress, "Creating new empty database...");
-        db = new GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder(dbPath)
-                .loadPropertiesFromFile("")
-                .newGraphDatabase();
+        dbms = new DatabaseManagementServiceBuilder(new File(dbPath).toPath()).build();
+        db = dbms.database("neo4j");
+//        db = new GraphDatabaseFactory()
+//                .newEmbeddedDatabaseBuilder(dbPath)
+//                .loadPropertiesFromFile("")
+//                .newGraphDatabase();
         Progress.setDisplayName(progress, "importing road network into database...");
         Progress.switchToDeterminate(progress, roadList.size());
 //        Progress.
@@ -91,15 +96,15 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
         setStatisticData(result);
         Progress.setDisplayName(progress, "shutting down database...");
         Progress.switchToIndeterminate(progress);
-        db.shutdown();
+        dbms.shutdown();
         Progress.finish(progress);
     }
 
     private void setStatisticData(Result result) {
         new TransactionWrapper<Result>(){
             @Override
-            public void runInTransaction() {
-                for(Relationship r: GlobalGraphOperations.at(db).getAllRelationships()){
+            public void runInTransaction(Transaction tx) {
+                for(Relationship r: tx.getAllRelationships()){
                     int id = ((int) r.getId());
                     r.setProperty("max-time",maxT[id]);
                     r.setProperty("min-time",minT[id]);
@@ -119,7 +124,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
             final int time = Helper.timeStr2int(file.getName().substring(9, 21));
             new TransactionWrapper<Result>(){
                 @Override
-                public void runInTransaction() {
+                public void runInTransaction(Transaction tx) {
                     BufferedReader br = null;
                     try {
                         br = new BufferedReader(new FileReader(file));
@@ -133,7 +138,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                             TemporalStatus temporalStatus = new TemporalStatus(line);
                             RoadChain roadChain = RoadChain.get(temporalStatus.gridId, temporalStatus.chainId);
                             if (roadChain.getInNum() > 0 || roadChain.getOutNum() > 0) {
-                                Relationship r = roadChain.getRelationship(db);
+                                Relationship r = roadChain.getRelationship(tx);
                                 if (r != null) {
                                     int dCount = dataCount[((int) r.getId())];
                                     if(dCount==0){
@@ -188,7 +193,7 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
             final int[] tmp = Helper.calcSplit(ith, totalPartCount, roadList.size());
             new TransactionWrapper<Map<String,Integer>>(){
                 @Override
-                public void runInTransaction() {
+                public void runInTransaction(Transaction tx) {
                     for (int i = tmp[0]; i <= tmp[1]; i++) {
                         if(!shouldGo) return;
                         RoadChain roadChain = roadList.get(i);
@@ -206,19 +211,19 @@ public class BuildDatabaseAsyncTask implements Runnable, LongTask {
                             Cross inCross = Cross.getStartCross(roadChain);
                             Cross outCross = Cross.getEndCross(roadChain);
                             Node inNode, outNode;
-                            if (inCross.getNode(db) == null) {
-                                inNode = db.createNode();
+                            if (inCross.getNode(tx) == null) {
+                                inNode = tx.createNode();
                                 inCross.setNode(inNode);
                                 inNode.setProperty("cross-id", inCross.id);
                             } else {
-                                inNode = inCross.getNode(db);
+                                inNode = inCross.getNode(tx);
                             }
-                            if (outCross.getNode(db) == null) {
-                                outNode = db.createNode();
+                            if (outCross.getNode(tx) == null) {
+                                outNode = tx.createNode();
                                 outCross.setNode(outNode);
                                 outNode.setProperty("cross-id", outCross.id);
                             } else {
-                                outNode = outCross.getNode(db);
+                                outNode = outCross.getNode(tx);
                             }
 
                             Relationship r = inNode.createRelationshipTo(outNode, RelType.ROAD_TO);

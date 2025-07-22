@@ -5,8 +5,6 @@ import edu.buaa.act.gephi.plugin.preview.HeatMapRenderer;
 import edu.buaa.act.gephi.plugin.tgraph.TransactionWrapper;
 import edu.buaa.act.gephi.plugin.utils.Clock;
 import edu.buaa.act.gephi.plugin.utils.LinearGradientInt;
-import org.act.temporalProperty.impl.InternalEntry;
-import org.act.temporalProperty.meta.ValueContentType;
 import org.act.temporalProperty.query.TimePointL;
 import org.gephi.graph.api.Edge;
 import org.gephi.preview.api.Item;
@@ -15,8 +13,9 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.temporal.TemporalRangeQuery;
-import org.neo4j.temporal.TimePoint;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.temporal.TemporalRangeQuery;
+import org.neo4j.graphdb.temporal.TimePoint;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
@@ -116,12 +115,12 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
     }
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
         for (Item item : itemArray) {
             if(!shouldGo) return;
             Edge edge = (Edge) item.getSource();
             long edgeIdTGraph = (Long) edge.getAttribute("tgraph_id");
-            Relationship r = db.getRelationshipById(edgeIdTGraph);
+            Relationship r = tx.getRelationshipById(edgeIdTGraph);
             int heatValue = calcHeatValue(r, startTime, winSize);
             if(heatValue>maxHeatValue) maxHeatValue = heatValue;
             item.setData(HEAT, heatValue);
@@ -167,9 +166,9 @@ public class RenderPreProcessSyncTask extends TransactionWrapper<Object> impleme
                 }
 
                 @Override
-                public boolean onNewEntry(long l, int i, TimePointL timePointL, Object o) {
-                    if(o instanceof Integer) {
-                        int status = (int) o;
+                public boolean onNewEntry(long rId, int propId, TimePointL time, Object val) {
+                    if(val instanceof Integer) {
+                        int status = (int) val;
                         dataCount++;
                         switch (status) {
                             case 2:

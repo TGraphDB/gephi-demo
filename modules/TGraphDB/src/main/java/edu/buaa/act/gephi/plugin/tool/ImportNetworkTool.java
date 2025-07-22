@@ -41,7 +41,7 @@ public class ImportNetworkTool implements Tool {
     }
 
     public long getNodeId(){
-        long nodeId = Long.valueOf( ui.importFromNodeId.getText() );
+        long nodeId = Long.parseLong( ui.importFromNodeId.getText() );
         return nodeId;
     }
 

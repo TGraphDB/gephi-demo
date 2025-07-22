@@ -3,7 +3,7 @@ package edu.buaa.act.gephi.plugin.utils;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.neo4j.temporal.TimePoint;
+import org.neo4j.graphdb.temporal.TimePoint;
 
 import java.io.*;
 import java.net.URL;

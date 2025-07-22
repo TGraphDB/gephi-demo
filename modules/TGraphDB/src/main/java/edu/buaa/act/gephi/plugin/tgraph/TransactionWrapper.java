@@ -17,11 +17,11 @@ public abstract class TransactionWrapper<T> {
     public TransactionWrapper(boolean willCommit){
         this.willCommit = willCommit;
     }
-    public abstract void runInTransaction();
+    public abstract void runInTransaction(Transaction tx);
     public TransactionWrapper start(GraphDatabaseService db){
         try(Transaction tx = db.beginTx()){
-            runInTransaction();
-            if(willCommit) tx.success();
+            runInTransaction(tx);
+            if(willCommit) tx.commit();
         }
         onFinish(getReturnValue());
         if(finishHook!=null) finishHook.handler(getReturnValue());

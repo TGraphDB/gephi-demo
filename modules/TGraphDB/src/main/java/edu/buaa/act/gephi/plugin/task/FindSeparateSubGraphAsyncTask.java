@@ -8,7 +8,7 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,13 +35,13 @@ public class FindSeparateSubGraphAsyncTask extends TransactionWrapper<List<FindS
 
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
         Progress.start(progress,totalNodes);
         final Set<Long> visited = new HashSet<Long>();
         List<IsolatedNetworkInfo> result = new ArrayList<IsolatedNetworkInfo>();
         TGraphTraversal traversal = new TGraphTraversal(db);
 
-        for (Node node : GlobalGraphOperations.at(db).getAllNodes()) {
+        for (Node node : tx.getAllNodes()) {
             if (!visited.contains(node.getId())) {
                 final IsolatedNetworkInfo categoryResult = new IsolatedNetworkInfo();
                 categoryResult.setStartNodeId(node.getId());

@@ -16,7 +16,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.temporal.TimePoint;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.temporal.TimePoint;
 
 import java.awt.*;
 import java.util.*;
@@ -32,6 +33,7 @@ import java.util.List;
  */
 public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOneTransactionAsyncTask{
     private GraphDatabaseService db;
+    private Transaction tx;
     private GraphModel model;
     private ProgressTicket progress;
     private long start;
@@ -73,7 +75,8 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
     }
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
+        this.tx = tx;
         try {
             System.out.println("enter tx");
             Progress.setDisplayName(progress, "initial algorithm...");
@@ -143,7 +146,7 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
      * @param nodeId given node's id
      */
     private void loopAllNeighborsUpdateGValue(final long nodeId) {
-        Node node = db.getNodeById(nodeId);
+        Node node = tx.getNodeById(nodeId);
         int g = getGvalue(node);
         for(Relationship r : node.getRelationships(Direction.OUTGOING)){
             if(!shouldGo) return;
@@ -275,7 +278,7 @@ public class ReachableAreaVisualizationAsyncTask extends TimeDependentDijkstraOn
 //            node.setColor(new Color(0xc0c0c0));
 //            node.setLabel("");
         }
-        Node startNode = db.getNodeById(from);
+        Node startNode = tx.getNodeById(from);
         TGraphTraversal traversal = new TGraphTraversal(db);
         traversal.DFS(startNode, new HashSet<Long>(), new TGraphTraversal.DFSAction<Node>(){
             public boolean visit(Node node) {

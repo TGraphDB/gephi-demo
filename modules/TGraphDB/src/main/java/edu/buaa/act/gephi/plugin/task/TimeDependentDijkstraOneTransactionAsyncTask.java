@@ -17,7 +17,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.temporal.TimePoint;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.temporal.TimePoint;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.PriorityQueue;
  */
 public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     private GraphDatabaseService db;
+    private Transaction tx;
     private GraphModel model;
     private ProgressTicket progress;
     private long start;
@@ -90,7 +92,8 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
     }
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
+        this.tx = tx;
         try {
             System.out.println("enter tx");
             Progress.setDisplayName(progress, "initial algorithm...");
@@ -228,7 +231,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
 
 
     private int getGvalue(long nodeId) {
-        return getGvalue(db.getNodeById(nodeId));
+        return getGvalue(tx.getNodeById(nodeId));
     }
     private int getGvalue(Node node) {
         return (Integer) node.getProperty("algo-astar-G");
@@ -240,10 +243,10 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      * @return parent node id
      */
     private Long getParent(long me) {
-        Object parent = db.getNodeById(me).getProperty("algo-astar-parent");
+        Object parent = tx.getNodeById(me).getProperty("algo-astar-parent");
 //        System.out.println(me+" "+parent);
         if(parent!=null){
-            return db.getNodeById((Long)parent).getId();
+            return tx.getNodeById((Long)parent).getId();
         }else{
             return null;
         }
@@ -259,7 +262,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
      * @param nodeId given node's id
      */
     private void loopAllNeighborsUpdateGValue(final long nodeId) {
-        Node node = db.getNodeById(nodeId);
+        Node node = tx.getNodeById(nodeId);
         int g = getGvalue(node);
         for(Relationship r : node.getRelationships(Direction.OUTGOING)){
             if(!shouldGo) return;
@@ -355,7 +358,7 @@ public class TimeDependentDijkstraOneTransactionAsyncTask extends Traverse{
 //            node.setLabel("");
             Progress.progress(progress);
         }
-        Node startNode = db.getNodeById(from);
+        Node startNode = tx.getNodeById(from);
         TGraphTraversal traversal = new TGraphTraversal(db);
         traversal.DFS(startNode, new HashSet<Long>(), new TGraphTraversal.DFSAction<Node>(){
             public boolean visit(Node node) {

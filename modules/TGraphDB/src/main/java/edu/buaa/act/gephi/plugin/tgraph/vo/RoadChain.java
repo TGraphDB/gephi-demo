@@ -1,7 +1,7 @@
 package edu.buaa.act.gephi.plugin.tgraph.vo;
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.*;
 
@@ -153,8 +153,8 @@ public class RoadChain {
         this.relationshipId = relationship.getId();
     }
 
-    public Relationship getRelationship(GraphDatabaseService db) {
-        return db.getRelationshipById(this.relationshipId);
+    public Relationship getRelationship(Transaction tx) {
+        return tx.getRelationshipById(this.relationshipId);
     }
 
     public String getGridId() {

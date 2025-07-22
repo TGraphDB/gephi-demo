@@ -6,8 +6,13 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
 
 
 /**
@@ -47,7 +52,7 @@ public class TGraphTraversal {
         visitedNodeCount=0;
         if(wrapInTransaction){
             new TransactionWrapper<>(){
-                public void runInTransaction() {
+                public void runInTransaction(Transaction tx) {
                     BFS(startNode, isVisited, action);
                 }
             }.start(db);
@@ -62,7 +67,7 @@ public class TGraphTraversal {
         visitedNodeCount=0;
         if(wrapInTransaction){
             new TransactionWrapper<>(){
-                public void runInTransaction() {
+                public void runInTransaction(Transaction tx) {
                     edgeBFS(startEdge, action);
                 }
             }.start(db);
@@ -77,7 +82,7 @@ public class TGraphTraversal {
         visitedNodeCount=0;
         if(wrapInTransaction){
             new TransactionWrapper<>(){
-                public void runInTransaction() {
+                public void runInTransaction(Transaction tx) {
                     DFS(startNode, isVisited, action);
                 }
             }.start(db);

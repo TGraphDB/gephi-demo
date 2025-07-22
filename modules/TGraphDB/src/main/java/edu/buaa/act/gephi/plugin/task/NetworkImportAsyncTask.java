@@ -12,14 +12,13 @@ import org.gephi.utils.progress.Progress;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 
 import java.awt.Color;
-import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by song on 16-5-12.
@@ -94,8 +93,8 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
 
     //old one: import without consider of road level (type)
     @Override
-    public void runInTransaction() {
-        Node startNode = db.getNodeById(startNodeId);
+    public void runInTransaction(Transaction tx) {
+        Node startNode = tx.getNodeById(startNodeId);
         Relationship startEdge = startNode.getRelationships().iterator().next();
         addNodeAtRandomPlace(startNode);
 
@@ -381,13 +380,6 @@ public class NetworkImportAsyncTask extends TransactionWrapper<Integer> implemen
             return graph.getEdge(gephiNode,gephiNodeNeighbor);
             // throw new RuntimeException("edge already exist!");
         }
-    }
-
-    private void printProperties(PropertyContainer nodeOrEdge){
-        for(String key: nodeOrEdge.getPropertyKeys()){
-            System.out.print(","+key+":"+nodeOrEdge.getProperty(key,null));
-        }
-        System.out.println();
     }
 
     private void notice(String s) {

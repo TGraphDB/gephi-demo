@@ -14,20 +14,19 @@ import org.openide.util.ImageUtilities;
  */
 public class TGraphFileView extends FileView {
 
-    Set<String> neo4jRequireFileNames = new HashSet<String>(Arrays.asList("neostore", "neostore.id",
-            "neostore.nodestore.db", "neostore.nodestore.db.id",
-            "neostore.propertystore.db", "neostore.propertystore.db.id",
-            "neostore.propertystore.db.arrays", "neostore.propertystore.db.arrays.id",
-            "neostore.propertystore.db.index", "neostore.propertystore.db.index.id",
-            "neostore.propertystore.db.index.keys", "neostore.propertystore.db.index.keys.id",
-            "neostore.propertystore.db.strings", "neostore.propertystore.db.strings.id",
-            "neostore.relationshipstore.db", "neostore.relationshipstore.db.id",
-            "neostore.relationshiptypestore.db", "neostore.relationshiptypestore.db.id",
-            "neostore.relationshiptypestore.db.names", "neostore.relationshiptypestore.db.names.id"
+    Set<String> neo4jRequireFileNames = new HashSet<String>(Arrays.asList("data", "logs"
+//            "neostore.nodestore.db", "neostore.nodestore.db.id",
+//            "neostore.propertystore.db", "neostore.propertystore.db.id",
+//            "neostore.propertystore.db.arrays", "neostore.propertystore.db.arrays.id",
+//            "neostore.propertystore.db.index", "neostore.propertystore.db.index.id",
+//            "neostore.propertystore.db.index.keys", "neostore.propertystore.db.index.keys.id",
+//            "neostore.propertystore.db.strings", "neostore.propertystore.db.strings.id",
+//            "neostore.relationshipstore.db", "neostore.relationshipstore.db.id",
+//            "neostore.relationshiptypestore.db", "neostore.relationshiptypestore.db.id",
+//            "neostore.relationshiptypestore.db.names", "neostore.relationshiptypestore.db.names.id"
     ));
 
-    Set<String> oldTGraphDirNames = new HashSet<String>(Arrays.asList("dynNode","dynRelationship"));
-    Set<String> newTGraphDirNames = new HashSet<String>(Arrays.asList("temporal.node.properties","temporal.relationship.properties"));
+    Set<String> tGraphDirNames = new HashSet<String>(Arrays.asList("temporal.node.properties","temporal.relationship.properties"));
 
     boolean isOldTGraph=true;
 
@@ -59,16 +58,12 @@ public class TGraphFileView extends FileView {
                 for (File file : files) {
                     if (neo4jRequireFileNames.contains(file.getName())) {
                         existingRequiredFiles++;
-                    }else if (oldTGraphDirNames.contains(file.getName())){
-                        oldCount++;
-                        isOldTGraph=true;
-                    }else if(newTGraphDirNames.contains(file.getName())){
+                    }else if (tGraphDirNames.contains(file.getName())){
                         newCount++;
                         isOldTGraph=false;
                     }
                 }
-                return existingRequiredFiles == neo4jRequireFileNames.size() &&
-                        (oldCount==2 || newCount==2);
+                return existingRequiredFiles == neo4jRequireFileNames.size() || newCount == 2;
             }
         }
         return false;

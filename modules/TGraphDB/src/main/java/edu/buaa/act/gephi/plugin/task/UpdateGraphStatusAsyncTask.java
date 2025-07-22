@@ -8,7 +8,8 @@ import org.gephi.utils.longtask.spi.LongTask;
 import org.gephi.utils.progress.ProgressTicket;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.temporal.TimePoint;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.temporal.TimePoint;
 
 import java.awt.Color;
 
@@ -30,7 +31,7 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
     }
 
     @Override
-    public void runInTransaction() {
+    public void runInTransaction(Transaction tx) {
         boolean updateFlag=false;
         for (Edge edge: graph.getEdges()){
             if(!shouldGo) return;
@@ -38,7 +39,7 @@ public class UpdateGraphStatusAsyncTask extends TransactionWrapper<Integer> impl
             updateFlag=true;
             Object tgraphId = edge.getAttribute("tgraph_id");
             if(tgraphId!=null){
-                Relationship r = db.getRelationshipById((Long) tgraphId);
+                Relationship r = tx.getRelationshipById((Long) tgraphId);
                 if(r!=null){
                     if(r.hasProperty("full-status")) {
                         Object fullStatus = r.getTemporalProperty("full-status", new TimePoint(time));

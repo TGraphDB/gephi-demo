@@ -12,8 +12,6 @@
     <!-- List of modules -->
     <modules>
         <!-- Add here the paths of all modules (e.g. <module>modules/MyModule</module>) -->
-       <!-- <module>modules/NodeColorManager</module> -->
-<!--       <module>modules/TGraphDemo</module>-->
         <module>modules/TGraphDB</module>
     </modules>
     
@@ -41,6 +39,11 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
         </repository>
     </repositories>
     

@@ -131,6 +131,23 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.62</version>
         </dependency>
+        
+        <!-- ASM dependency for bytecode manipulation -->
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>9.2</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.github.oshi</groupId>-->
 <!--            <artifactId>oshi-core</artifactId>-->
@@ -167,6 +184,7 @@
                     <publicPackages>
                         <!-- Insert public packages -->
                     </publicPackages>
+                    <verifyRuntime>false</verifyRuntime>
                 </configuration>
             </plugin>
         </plugins>
