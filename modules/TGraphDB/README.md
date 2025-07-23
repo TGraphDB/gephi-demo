@@ -21,7 +21,7 @@ to know what this plugin demonstrate in 3 minutes.
 
 # Plugin Installation
 
-Download latest plugin from [here](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-201909.nbm) (md5:`fdaf4d7d584bfc2913ded54bd913a30d`)
+Download latest plugin from [here](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraphdb-demo-4.4.37.nbm) 
 
 In Gephi, click menu `Tools` -> `Plugins` -> `Downloaded` -> `Add Plugins...`,
 then choose the downloaded nbm file and press `OK`.
@@ -29,17 +29,17 @@ then choose the downloaded nbm file and press `OK`.
 Then check the `install` checkbox and press `Install` button. This plugin is not signed, install it at your risk.
 
 # TGraph Database Installation
-This plugin is packed with TGraph kernel (the database management system program) in. To get the data to play with, you have two options: to download an exist database from web, or build the database yourself from raw data. The former choice is quick and easy but only contains temporal data of 5 hours, while the later one provide you more choice.
+This plugin is packed with TGraphDB kernel (the database management system program) in. To get the data to play with, you have two choices: to download an exist database from web, or build the database yourself from raw data. The former choice is quick and easy but only contains temporal data of 5 hours, while the later one provide you more choice.
 
 ### Download an exist DB (Recommend)
 Download a tiny, out-of-the-box TGraph database which contains Beijing road network and traffic data from 2010-11-04 00:00 to 13:00 (about 50MB)
-from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraphDemoDB201909.zip) (md5 checksum:`580a82cd84217586dafb50d56538b8a8`)
+from 
 
 ### Build DB from raw data
 > 1. Build database from raw data requires extra 1~3GB memory in your computer.
 > 2. You must install this plugin to Gephi to use this feature.
 
-#### download raw data
+download raw data and **EXTRACT** all compressed data
 - Beijing network topology, [Topo.csv.gz](http://amitabha.water-crystal.org/TGraphDemo/Topo.csv.gz) (md5:`587284f28e49143884f6253d7e1ec793`)
 - Traffic data(at lease one, but more if you like) at:
     - [20101104.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101104.tar.gz) (md5:`fbf555adb8fbc018c73016f31baed086`)
@@ -47,7 +47,6 @@ from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraphDemoDB201909.zip)
     - [20101106.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101106.tar.gz) (md5:`91999663ba1be49920ad7b4877c2a0cb`)
     - [20101107.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101107.tar.gz) (md5:`fd0846aa8b2fb767d389beea040c404e`)
     - [20101108.tar.gz](http://amitabha.water-crystal.org/TGraphDemo/20101108.tar.gz) (md5:`4158bf28c3429b0a4ee0c5d8e434580b`)
-- **Extra all compressed data**.
 
 #### build database
 1. In Gephi, click `Plugins`->`TGraph Demo DB Builder` to open the database builder.
@@ -82,7 +81,7 @@ from [here](http://amitabha.water-crystal.org/TGraphDemo/TGraphDemoDB201909.zip)
 # Feed back
 please use issue.
 
-# About TGraph Database Management System
+# About TGraphDB
 See our [demo paper](http://dx.doi.org/10.1145/2983323.2983335) published in CIKM2016.
 
 # Change log
@@ -96,12 +95,16 @@ See our [demo paper](http://dx.doi.org/10.1145/2983323.2983335) published in CIK
 ```
 
 ## 2019-9
-* Packed with new TGraph kernel which is compatible with neo4j 2.3.13.
+Packed with new TGraphDB kernel which is compatible with neo4j 2.3.13 and Gephi 0.9.3. Download 
+[the plugin](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-201909.nbm) 
+and [existing databases](http://amitabha.water-crystal.org/TGraphDemo/TGraphDemoDB201909.zip)
 
 ## 2016-10
 1. Better database folder chooser when connecting to a database.
 2. Fix Name error in Gephi plugin manager.
-3. Packed with new TGraph kernel which is compatible with neo4j 2.2.3.
+3. Packed with new TGraphDB kernel which is compatible with neo4j 2.2.3.
+
+Download [the plugin](http://amitabha.water-crystal.org/TGraphDemo/gephi-plugin-tgraph-demo-1.0.0.nbm)
 
 ## 2016-06
 * A runnable version.
